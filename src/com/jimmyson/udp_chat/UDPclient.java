@@ -16,6 +16,7 @@ public class UDPclient {
         int srvPort = 0;
         String srvAddr = "";
         InetAddress IPAddress = null;
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
         for (int i = 0; i<args.length; i++) {
             if(args[i].equals("-p") || args[i].equals("--port")) {
@@ -41,7 +42,7 @@ public class UDPclient {
         if(srvPort == 0) {
             //SET PORT INSIDE APPLICATION
             System.out.print("SPECIFY APPLICATION PORT (9876): ");
-            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+
             String input = inFromUser.readLine();
             if(!(input.trim().equals(""))) {
                 try {
@@ -60,7 +61,6 @@ public class UDPclient {
         if (IPAddress == null) {
             //SPECIFY DESTINATION
             System.out.print("SPECIFY DESTINATION DEVICE: ");
-            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
             String input = inFromUser.readLine();
 
             String[] parts = input.split("\\.");
@@ -80,7 +80,6 @@ public class UDPclient {
         }
 
         while(true) {
-            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
             DatagramSocket clientSocket = new DatagramSocket();
 
             byte[] sendData, receiveData;
