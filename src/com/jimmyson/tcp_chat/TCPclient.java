@@ -1,4 +1,4 @@
-//package com.jimmyson.tcp_chat;
+package com.jimmyson.tcp_chat;
 
 import java.io.*;
 import java.net.*;

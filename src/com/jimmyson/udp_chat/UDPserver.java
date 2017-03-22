@@ -1,4 +1,4 @@
-//package com.jimmyson.udp_chat;
+package com.jimmyson.udp_chat;
 
 //import java.io.*;
 import java.io.BufferedReader;
