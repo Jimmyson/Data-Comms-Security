@@ -15,13 +15,20 @@ public class TCPreceive {
         if(!file.exists()) {
             FileOutputStream fileWriter = new FileOutputStream(file);
 
-            while(inFromServer.ready()) {
+            while(sock.isConnected()) {
                 //Socket sock = new Socket(srvAddr, srvPort);
 
                 //DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
                 BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-                fileWriter.write(inFromServer.read());
+                int chr;
+                while((chr = inFromServer.read()) > -2) {
+                    if(chr == -1) {
+                        sock.close();
+                    } else {
+                        fileWriter.write(chr);
+                    }
+                }
 
                 //sentence = inFromUser.readLine();
                 //outToServer.writeBytes(sentence + '\n');
@@ -29,10 +36,6 @@ public class TCPreceive {
                 //modifiedSentence = inFromServer.readLine();
                 //System.out.println("FROM SERVER: " + modifiedSentence);
             }
-
-            sock.close();
         }
-
-
     }
 }
