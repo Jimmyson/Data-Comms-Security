@@ -5,11 +5,24 @@ package com.jimmyson.assignment_2;
  */
 
 import java.io.Console;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 
 public class program {
+    private static int port;
+
     public static void main(String argv[]) throws Exception
     {
+        int index = 0;
+        for (String param : argv) {
+            switch (param) {
+                case "-p":
+                    port = Integer.parseInt(argv[index+1]);
+            }
+            index++;
+        }
+
+        InetSocketAddress socket = new InetSocketAddress(port);
+
         //Check For Port Number
         //Get IP Address
 
