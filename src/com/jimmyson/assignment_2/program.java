@@ -1,11 +1,12 @@
 package com.jimmyson.assignment_2;
 
+import java.io.Console;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 /**
  * Created by Jimmyson on 3/05/2017.
  */
-
-import java.io.Console;
-import java.net.InetSocketAddress;
 
 public class program {
     private static int port;
@@ -21,7 +22,13 @@ public class program {
             index++;
         }
 
-        InetSocketAddress socket = new InetSocketAddress(port);
+        //@TODO: BUILD GUI INTERACTION
+
+        ServerSocket listener = new ServerSocket(port);
+
+        while (!listener.isClosed()) { //FIX THIS LOOP
+            new TCPsend(listener.accept(), "HellowWorld.txt");
+        }
 
         //Check For Port Number
         //Get IP Address
@@ -33,6 +40,13 @@ public class program {
         //TCP connection for send
 
         //TCP receive for fetch
+
+        //@TODO: SEPARATE INTO OWN FUNCTION
+        String srvIP = "Computer";
+        int srvPort = 6789;
+        String reqFile = "HelloWorld.txt";
+
+        new TCPreceive(new Socket(srvIP, srvPort), reqFile);
     }
 
     private static boolean shutdownCheck()
