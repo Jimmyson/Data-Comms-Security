@@ -9,8 +9,8 @@ import java.net.Socket;
 /**
  * Created by Jimmyson on 3/05/2017.
  */
-public class TCPreceive {
-    public TCPreceive(Socket sock, String filename) throws Exception {
+class TCPreceive {
+    TCPreceive(Socket sock, String filename) throws Exception {
         File file = new File(filename);
         if(!file.exists()) {
             FileOutputStream fileWriter = new FileOutputStream(file);
@@ -22,7 +22,7 @@ public class TCPreceive {
                 BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
                 int chr;
-                while((chr = inFromServer.read()) > -2) {
+                while((chr = inFromServer.read()) > -2 && sock.isConnected()) {
                     if(chr == -1) {
                         sock.close();
                     } else {

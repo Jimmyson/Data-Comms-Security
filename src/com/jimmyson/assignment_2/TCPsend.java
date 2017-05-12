@@ -10,7 +10,7 @@ public class TCPsend extends Thread {
     private Socket Sock;
     private File File;
 
-    public TCPsend (Socket sock, String filename) {
+    TCPsend(Socket sock, String filename) {
         this.Sock = sock;
         this.File = new File(filename);
     }
@@ -32,5 +32,9 @@ public class TCPsend extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean isConnected() {
+        return (Sock.isConnected());
     }
 }

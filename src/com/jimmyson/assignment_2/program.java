@@ -9,10 +9,11 @@ import java.net.Socket;
  */
 
 public class program {
-    private static int port;
+    private static TCPlistener listen;
 
     public static void main(String argv[]) throws Exception
     {
+        int port = 0;
         int index = 0;
         for (String param : argv) {
             switch (param) {
@@ -22,26 +23,28 @@ public class program {
             index++;
         }
 
-        //@TODO: BUILD GUI INTERACTION
+        if(port >= 1024) {
+            //@TODO: BUILD GUI INTERACTION
+            listen = new TCPlistener(port);
 
-        ServerSocket listener = new ServerSocket(port);
+            //Check For Port Number
+            //Get IP Address
 
-        while (!listener.isClosed()) { //FIX THIS LOOP
-            new TCPsend(listener.accept(), "HellowWorld.txt");
+            //Broadcast Socket Set
+
+            //UDP call for active servers
+
+            //TCP connection for send
+
+            //TCP receive for fetch
         }
 
-        //Check For Port Number
-        //Get IP Address
+        if (shutdownCheck()) {
+            return;
+        }
+    }
 
-        //Broadcast Socket Set
-
-        //UDP call for active servers
-
-        //TCP connection for send
-
-        //TCP receive for fetch
-
-        //@TODO: SEPARATE INTO OWN FUNCTION
+    private static void fetchFile() throws Exception {
         String srvIP = "Computer";
         int srvPort = 6789;
         String reqFile = "HelloWorld.txt";
@@ -52,6 +55,10 @@ public class program {
     private static boolean shutdownCheck()
     {
         //Check for active connections
+        if (listen.CheckConnections()) {
+            //Ask to rejects
+            return true;
+        }
 
         //If Active, ask
             //IF True, reject incoming connections and wait for transfer to end
