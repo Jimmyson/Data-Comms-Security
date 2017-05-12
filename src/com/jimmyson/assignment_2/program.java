@@ -1,7 +1,7 @@
 package com.jimmyson.assignment_2;
 
 import java.io.Console;
-import java.net.ServerSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -10,6 +10,7 @@ import java.net.Socket;
 
 public class program {
     private static TCPlistener listen;
+    private static UDPcall call;
 
     public static void main(String argv[]) throws Exception
     {
@@ -26,6 +27,7 @@ public class program {
         if(port >= 1024) {
             //@TODO: BUILD GUI INTERACTION
             listen = new TCPlistener(port);
+            call = new UDPcall(port+1);
 
             //Check For Port Number
             //Get IP Address
@@ -42,6 +44,10 @@ public class program {
         if (shutdownCheck()) {
             return;
         }
+    }
+
+    private static void SendHello() throws Exception {
+        call.AllSend();
     }
 
     private static void fetchFile() throws Exception {

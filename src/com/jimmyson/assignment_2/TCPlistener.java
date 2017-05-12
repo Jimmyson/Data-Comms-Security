@@ -1,6 +1,5 @@
 package com.jimmyson.assignment_2;
 
-import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 
@@ -25,7 +24,7 @@ public class TCPlistener {
         Server.close();
     }
 
-    public boolean CheckConnections() {
+    boolean CheckConnections() {
         for (TCPsend connect : Connects) {
             if(connect.isConnected()) {
                 return true;

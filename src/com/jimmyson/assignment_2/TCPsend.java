@@ -34,7 +34,7 @@ public class TCPsend extends Thread {
         }
     }
 
-    public boolean isConnected() {
+    boolean isConnected() {
         return (Sock.isConnected());
     }
 }
