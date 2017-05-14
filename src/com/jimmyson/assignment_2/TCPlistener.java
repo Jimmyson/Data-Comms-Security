@@ -9,11 +9,12 @@ import java.util.ArrayList;
 public class TCPlistener {
     private ServerSocket Server;
     private ArrayList<TCPsend> Connects = new ArrayList<>();
+    private boolean Accept = true;
 
     TCPlistener(int port) throws Exception{
         Server = new ServerSocket(port);
 
-        while (!Server.isClosed()) { //FIX THIS LOOP
+        while (!Server.isClosed() || Accept) { //FIX THIS LOOP
             TCPsend t = new TCPsend(Server.accept(), "HelloWorld.txt");
             Connects.add(t);
             t.start();
@@ -21,6 +22,7 @@ public class TCPlistener {
     }
 
     public void Terminate() throws Exception {
+        Accept = false;
         Server.close();
     }
 
@@ -32,4 +34,6 @@ public class TCPlistener {
         }
         return false;
     }
+
+    public boolean Running() { return Accept; }
 }

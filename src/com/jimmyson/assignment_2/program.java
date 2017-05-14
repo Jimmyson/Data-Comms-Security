@@ -1,7 +1,6 @@
 package com.jimmyson.assignment_2;
 
-import java.io.Console;
-import java.net.InetAddress;
+import java.io.InputStreamReader;
 import java.net.Socket;
 
 /**
@@ -9,8 +8,8 @@ import java.net.Socket;
  */
 
 public class program {
-    private static TCPlistener listen;
-    private static UDPcall call;
+    private static TCPlistener Listen;
+    private static UDPcall Call;
 
     public static void main(String argv[]) throws Exception
     {
@@ -26,8 +25,12 @@ public class program {
 
         if(port >= 1024) {
             //@TODO: BUILD GUI INTERACTION
-            listen = new TCPlistener(port);
-            call = new UDPcall(port+1);
+            Listen = new TCPlistener(port);
+            Call = new UDPcall(port+1);
+
+            PrintToScreen("Username: ");
+            String Name = (new InputStreamReader(System.in)).toString();
+            PrintToScreen(SendMessage(Name+" has connected!"));
 
             //Check For Port Number
             //Get IP Address
@@ -39,15 +42,34 @@ public class program {
             //TCP connection for send
 
             //TCP receive for fetch
-        }
 
-        if (shutdownCheck()) {
-            return;
+            InputStreamReader input = new InputStreamReader(System.in);
+
+            while(Listen.Running()) {
+                switch(input.toString()) {
+                    case "FILES":
+                        break;
+                    case "FETCH":
+                        break;
+                    case "EXIT":
+                        if (shutdownCheck()) {
+                            Listen.Terminate();
+                        }
+                        break;
+                    default:
+                        PrintToScreen(Name+": "+SendMessage(input.toString()));
+                }
+            }
         }
     }
 
-    private static void SendHello() throws Exception {
-        call.AllSend();
+    private static String SendMessage(String message) throws Exception {
+        Call.AllSend(message);
+        return message;
+    }
+
+    private static void PrintToScreen(String message) {
+        System.out.print(message);
     }
 
     private static void fetchFile() throws Exception {
@@ -61,7 +83,7 @@ public class program {
     private static boolean shutdownCheck()
     {
         //Check for active connections
-        if (listen.CheckConnections()) {
+        if (Listen.CheckConnections()) {
             //Ask to rejects
             return true;
         }

@@ -8,17 +8,17 @@ import java.net.*;
 
 class UDPcall {
     private int Port;
-    private InetAddress address = InetAddress.getLocalHost();
+    //private InetAddress address = InetAddress.getLocalHost();
     private byte[] sendData;
 
     UDPcall(int port) throws Exception {
         Port = port;
     }
 
-    void AllSend() throws Exception{
-        MulticastSocket multi = new MulticastSocket(Port);
+    void AllSend(String message) throws Exception{
+        MulticastSocket multi = new MulticastSocket();
 
-        sendData = (address.getHostAddress() + "has connected").getBytes();
+        sendData = message.getBytes();
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, multi.getInetAddress(), this.Port);
         multi.send(sendPacket);
