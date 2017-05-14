@@ -1,5 +1,6 @@
 package com.jimmyson.assignment_2;
 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
@@ -8,12 +9,14 @@ import java.net.Socket;
  */
 
 public class program {
+    private static int TCPport = 4001;
+    private static int UDPport = 4000;
     private static TCPlistener Listen;
     private static UDPcall Call;
 
     public static void main(String argv[]) throws Exception
     {
-        int port = 0;
+        /*int port = 0;
         int index = 0;
         for (String param : argv) {
             switch (param) {
@@ -21,12 +24,12 @@ public class program {
                     port = Integer.parseInt(argv[index+1]);
             }
             index++;
-        }
+        }*/
 
-        if(port >= 1024) {
+        //if(port >= 1024) {
             //@TODO: BUILD GUI INTERACTION
-            Listen = new TCPlistener(port);
-            Call = new UDPcall(port+1);
+            Listen = new TCPlistener(TCPport);
+            Call = new UDPcall(UDPport);
 
             PrintToScreen("Username: ");
             String Name = (new InputStreamReader(System.in)).toString();
@@ -46,11 +49,41 @@ public class program {
             InputStreamReader input = new InputStreamReader(System.in);
 
             while(Listen.Running()) {
-                switch(input.toString()) {
-                    case "FILES":
+                String[] command = CommandSplit(input.toString());
+                switch(command[0].toUpperCase()) {
+                    case "ADD":
                         break;
-                    case "FETCH":
+                    case "DELETE":
+                    case "DEL":
                         break;
+                    case "GET":
+                    case "LIST":
+                    case "LS":
+                        String formats = "\\.(avi|mp4|mkv|wmv|m4v|webm|mov|flv)";
+                        File[] dirList = new File(".").listFiles();
+                        if(dirList != null) {
+                            for (File file : dirList) {
+                                String fileName = file.getName();
+                                if (fileName.substring(fileName.lastIndexOf("."), fileName.length()).matches(formats)) {
+                                    System.out.print(fileName);
+                                }
+                            }
+                        } else {
+                            System.out.print("No files exist");
+                        }
+                        break;
+                    case "WHOHAS":
+                        //WHOHAS "FILENAME" 192.168.0.1:4000
+                        break;
+                    case "REQUEST":
+                    case "REQ":
+                        //REQUEST "FILENAME" 192.168.0.1:4000
+                        fetchFile(command[0],command[1],command[2]);
+                        break;
+                    case "ONLINE":
+                        break;
+                    case "Q":
+                    case "QUIT":
                     case "EXIT":
                         if (shutdownCheck()) {
                             Listen.Terminate();
@@ -60,7 +93,11 @@ public class program {
                         PrintToScreen(Name+": "+SendMessage(input.toString()));
                 }
             }
-        }
+        //}
+    }
+
+    private static String[] CommandSplit(String command) {
+        return command.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
     }
 
     private static String SendMessage(String message) throws Exception {
@@ -72,7 +109,7 @@ public class program {
         System.out.print(message);
     }
 
-    private static void fetchFile() throws Exception {
+    private static void fetchFile(String file, String host, String port) throws Exception {
         String srvIP = "Computer";
         int srvPort = 6789;
         String reqFile = "HelloWorld.txt";
