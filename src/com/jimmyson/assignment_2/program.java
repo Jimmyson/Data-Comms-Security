@@ -9,8 +9,8 @@ import java.net.Socket;
  */
 
 public class program {
-    private static int TCPport = 4001;
-    private static int UDPport = 4000;
+    private static final int TCPport = 4001;
+    private static final int UDPport = 4000;
     private static TCPlistener Listen;
     private static UDPcall Call;
 
