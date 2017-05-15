@@ -30,6 +30,7 @@ public class program {
             //@TODO: BUILD GUI INTERACTION
             Listen = new TCPlistener(TCPport);
             Call = new UDPcall(UDPport);
+            Call.run();
 
             PrintToScreen("Username: ");
             String Name = (new InputStreamReader(System.in)).toString();

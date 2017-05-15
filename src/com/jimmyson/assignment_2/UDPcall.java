@@ -33,9 +33,10 @@ class UDPcall extends Thread {
                         Send("I am here", incoming.getAddress());
                         break;
                     case "WHOHAS":
-                        Send("I have it!", incoming.getAddress());
+                        Send(Socket.getLocalAddress().getHostAddress() + ":" + Socket.getLocalPort(), incoming.getAddress());
                         break;
                     default:
+                        System.out.print(incoming.toString());
                         break;
                 }
             }
@@ -63,5 +64,13 @@ class UDPcall extends Thread {
         Socket.send(sendPacket);
 
         Socket.close();
+    }
+
+    public void Terminate() {
+        Active = false;
+    }
+
+    public boolean GetActive() {
+        return Active;
     }
 }

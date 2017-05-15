@@ -1,9 +1,6 @@
 package com.jimmyson.assignment_2;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -11,6 +8,10 @@ import java.net.Socket;
  */
 class TCPreceive {
     TCPreceive(Socket sock, String filename) throws Exception {
+        //SEND REQUEST TO LISTENER
+        DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
+        outToServer.writeBytes(filename);
+
         File file = new File(filename);
         if(!file.exists()) {
             FileOutputStream fileWriter = new FileOutputStream(file);
