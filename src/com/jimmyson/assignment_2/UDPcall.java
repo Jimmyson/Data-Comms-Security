@@ -20,6 +20,7 @@ class UDPcall extends Thread {
         this.start();
     }
 
+    //@TODO: Handle at Sever
     public void run() {
         byte[] incomingData = new byte[1024];
         DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
@@ -45,6 +46,7 @@ class UDPcall extends Thread {
         }
     }
 
+    //@TODO: Remove Multicast. Handle to Server
     void AllSend(String message) throws Exception{
         MulticastSocket multi = new MulticastSocket();
 
@@ -55,6 +57,7 @@ class UDPcall extends Thread {
         multi.close();
     }
 
+    //@TODO: Handle at Server
     private void Send(String message, InetAddress dest) throws Exception {
         //DatagramSocket clientSocket = new DatagramSocket();
 
