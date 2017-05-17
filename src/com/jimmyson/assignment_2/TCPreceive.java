@@ -37,6 +37,7 @@ class TCPreceive {
                 //modifiedSentence = inFromServer.readLine();
                 //System.out.println("FROM SERVER: " + modifiedSentence);
             }
+            fileWriter.close();
         }
     }
 }
