@@ -4,10 +4,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Iterator;
 
 /**
  * Created by Jimmyson on 17/05/2017.
@@ -15,7 +13,7 @@ import java.util.Iterator;
 public class server {
     private static final int Port = 4000;
     private static ArrayList<Client> Clients = new ArrayList<>();
-    private static ArrayList<SimpleEntry<String, ArrayList<byte[]>>> Files;
+    private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files;
     private static boolean Active = true;
     private static byte[] sendData;
     private static DatagramSocket Socket;
@@ -31,43 +29,24 @@ public class server {
             this.Port = port;
         }
 
-        public byte[] GetIP() {
+        byte[] GetIP() {
             return IP;
         }
 
-        public String GetName() {
+        String GetName() {
             return Name;
         }
 
-        public int GetPort() {
+        int GetPort() {
             return Port;
         }
     }
 
-    /*public class FileRecord {
-        private String Name;
-        private ArrayList<Client> Owners = new ArrayList<>();
-
-        FileRecord(String name) {
-            this.Name = name;
-        }
-
-        public void AddClient(Client client) {
-            Owners.add(client);
-        }
-
-        public void RemoveClient(Client client) {
-            Owners.remove(client);
-        }
-
-        public ArrayList<Client> GetOwners() {
-            return Owners;
-        }
-    }*/
-
     public static void main(String[] argv) throws Exception {
         //READ PORT NUMBER
         Socket = new DatagramSocket(Port);
+        int index;
+        StringBuilder result = new StringBuilder();
         byte[] sendData, receiveData = new byte[1024];
 
         while(Active) {
@@ -77,36 +56,94 @@ public class server {
             try{
                 while (Active) {
                     Socket.receive(incoming);
+                    String[] command = CommandSplit(incoming.toString());
 
-                    switch(incoming.toString()) {
-                        case "ONLINE":
+                    switch(command[0].toUpperCase()) {
+
+                        case "WELCOME":
                             //READ STRING FOR IP ADDRESS AND PORT;
                             //LOG DEVICE
                             Clients.add(new Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), incoming.getPort()));
-                            AllSend("DEVICE HAS CONNECTED");
+                            AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
+                            System.out.println(incoming.getAddress().getHostName()+" AS CONNECTED");
+                            break;
+                        case "ONLINE":
+                            result = new StringBuilder();
+                            for (Client c : Clients) {
+                                result.append(c.GetName());
+                                result.append(" => ");
+                                result.append(IPtoString(c.GetIP()));
+                                result.append(":");
+                                result.append(c.GetPort());
+                                result.append("\n");
+                            }
+                            Send(result.toString(), incoming.getAddress());
                             break;
                         case "ADD":
-                            for (SimpleEntry<String, ArrayList<byte[]>> file : Files) {
-                                if (file.getKey().equals("FILENAME")) break;
-                                else {
-                                    ArrayList<byte[]> clients = file.getValue();
-                                    //@TODO: FIX THIS!
-                                    /*if (!clients.contains(incoming.getAddress().getAddress())) {
-                                        file.setValue(clients.add(incoming.getAddress().getAddress()));
-                                    }*/
+                            boolean found = false;
+                            index = 0;
+                            for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                                if (file.getKey().equals(command[1])) {
+                                    found = true;
+                                    ArrayList<InetAddress> clients = file.getValue();
+                                    if (!clients.contains(incoming.getAddress())) {
+                                        clients.add(incoming.getAddress());
+                                        Files.set(index, new SimpleEntry<>(file.getKey(), clients));
+                                    }                                }
+                                index++;
+                            }
+
+                            //IF FILE DOES NOT EXIST
+                            if(!found) {
+                                ArrayList<InetAddress> newClients = new ArrayList<>();
+                                newClients.add(incoming.getAddress());
+                                Files.add(new SimpleEntry<>(command[1], newClients));
+                            }
+
+                            System.out.println("Added "+command[1]+" from "+incoming.getAddress().getHostAddress());
+                            break;
+                        case "DELETE":
+                            index = 0;
+                            for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                                if (file.getKey().equals(command[1])) {
+                                    ArrayList<InetAddress> clients = file.getValue();
+                                    clients.remove(incoming.getAddress());
+                                    if(clients.size() > 0) {
+                                        Files.set(index, new SimpleEntry<>(file.getKey(), clients));
+                                    } else {
+                                        Files.remove(index);
+                                    }
+                                    break;
                                 }
-                                ArrayList<byte[]> newClients = new ArrayList<>();
-                                newClients.add(incoming.getAddress().getAddress());
-                                Files.add(new SimpleEntry<>("FILENAME", newClients));
+                                index++;
                             }
                             break;
                         case "WHOHAS":
-                            Send(Socket.getLocalAddress().getHostAddress() + ":" + Socket.getLocalPort(), incoming.getAddress());
+                            result = new StringBuilder();
+                            for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                                if (file.getKey().equals(command[1])) {
+                                    for (InetAddress IP : file.getValue()) {
+                                        result.append(IP.getHostAddress());
+                                        result.append("\n");
+                                    }
+                                    break;
+                                }
+                            }
+                            Send(result.toString(), incoming.getAddress());
                             break;
                         case "BYE":
                             //REMOVE IP ADDRESS + PORT
                             AllSend("DEVICE AS DISCONNECTED");
+                            for(Client c : Clients) {
+                                if (incoming.getAddress().getAddress() == c.GetIP()) {
+                                    Clients.remove(c);
+                                    break;
+                                }
+                            }
+                            System.out.print("DEVICE AS DISCONNECTED");
+                            break;
                         default:
+                            AllSend(incoming.toString());
                             System.out.print(incoming.toString());
                             break;
                     }
@@ -134,6 +171,21 @@ public class server {
         }
     }
 
+    private static String IPtoString(byte[] IP) {
+        if (IP.length == 4) {
+            StringBuilder s = new StringBuilder();
+            for (byte b : IP) {
+                s.append(b & 0xFF);
+            }
+            return s.toString();
+        }
+        return null;
+    }
+
+    private static String[] CommandSplit(String command) {
+        return command.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+    }
+
     private static void AllSend(String message) throws Exception{
         MulticastSocket multi = new MulticastSocket();
 
@@ -144,10 +196,7 @@ public class server {
         multi.close();
     }
 
-    //@TODO: Handle at Server
     private static void Send(String message, InetAddress dest) throws Exception {
-        //DatagramSocket clientSocket = new DatagramSocket();
-
         sendData = message.getBytes();
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, dest, Port);

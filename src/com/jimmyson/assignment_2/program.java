@@ -2,6 +2,7 @@ package com.jimmyson.assignment_2;
 
 import java.io.File;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -9,55 +10,62 @@ import java.net.Socket;
  */
 
 public class program {
-    private static final int TCPport = 4001;
     private static final int UDPport = 4000;
     private static TCPlistener Listen;
     private static UDPcall Call;
 
     public static void main(String argv[]) throws Exception
     {
-        /*int port = 0;
-        int index = 0;
+        int port = 0, index = 0;
+        InetAddress server = null;
         for (String param : argv) {
             switch (param) {
                 case "-p":
                     port = Integer.parseInt(argv[index+1]);
+                    break;
+                case "-h":
+                    String[] parts = argv[index+1].split("\\.");
+                    if(parts.length == 4) {
+                        byte[] ip = new byte[4];
+
+                        for (int j = 0; j < parts.length; j++) {
+                            ip[j] = (byte)Integer.parseInt(parts[j]);
+                        }
+
+                        server = InetAddress.getByAddress(ip);
+                    } else {
+                        server = InetAddress.getByName(argv[index+1]);
+                    }
             }
             index++;
-        }*/
+        }
 
-        //if(port >= 1024) {
+        //ASK FOR SERVER
+
+        if(port >= 1024) {
             //@TODO: BUILD GUI INTERACTION
-            Listen = new TCPlistener(TCPport);
-            Call = new UDPcall(UDPport);
+            Listen = new TCPlistener(port);
+            Call = new UDPcall(UDPport, server);
             Call.run();
 
             PrintToScreen("Username: ");
             String Name = (new InputStreamReader(System.in)).toString();
-            PrintToScreen(SendMessage(Name+" has connected!"));
-
-            //Check For Port Number
-            //Get IP Address
-
-            //Broadcast Socket Set
-
-            //UDP call for active servers
-
-            //TCP connection for send
-
-            //TCP receive for fetch
+            PrintToScreen(SendMessage("WELCOME "+Name));
 
             InputStreamReader input = new InputStreamReader(System.in);
 
             while(Listen.Running()) {
                 String[] command = CommandSplit(input.toString());
                 switch(command[0].toUpperCase()) {
+                    case "WELCOME":
+                        break;
                     case "ADD":
+                        SendMessage(input.toString());
                         break;
                     case "DELETE":
                     case "DEL":
+                        SendMessage(input.toString());
                         break;
-                    case "GET":
                     case "LIST":
                     case "LS":
                         String formats = "\\.(avi|mp4|mkv|wmv|m4v|webm|mov|flv)";
@@ -74,18 +82,22 @@ public class program {
                         }
                         break;
                     case "WHOHAS":
-                        //WHOHAS "FILENAME" 192.168.0.1:4000
+                        SendMessage(input.toString());
                         break;
+                    case "GET":
                     case "REQUEST":
                     case "REQ":
                         //REQUEST "FILENAME" 192.168.0.1:4000
                         fetchFile(command[0],command[1],command[2]);
                         break;
                     case "ONLINE":
+                        SendMessage(input.toString());
                         break;
                     case "Q":
                     case "QUIT":
                     case "EXIT":
+                        SendMessage("BYE");
+                        Call.Terminate();
                         if (shutdownCheck()) {
                             Listen.Terminate();
                         }
@@ -94,7 +106,7 @@ public class program {
                         PrintToScreen(Name+": "+SendMessage(input.toString()));
                 }
             }
-        //}
+        }
     }
 
     private static String[] CommandSplit(String command) {
@@ -102,7 +114,7 @@ public class program {
     }
 
     private static String SendMessage(String message) throws Exception {
-        Call.AllSend(message);
+        Call.Send(message);
         return message;
     }
 

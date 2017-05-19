@@ -10,10 +10,10 @@ class UDPcall extends Thread {
     private int Port;
     private boolean Active;
     private DatagramSocket Socket;
-    //private InetAddress address = InetAddress.getLocalHost();
-    private byte[] sendData;
+    private InetAddress Server;
 
-    UDPcall(int port) throws Exception {
+    UDPcall(int port, InetAddress server) throws Exception {
+        Server = server;
         Port = port;
         Socket = new DatagramSocket(Port);
         Active = true;
@@ -30,12 +30,12 @@ class UDPcall extends Thread {
                 Socket.receive(incoming);
 
                 switch(incoming.toString()) {
-                    case "ONLINE":
-                        Send("I am here", incoming.getAddress());
+                    /*case "ONLINE":
+                        Send("I am here", Server);
                         break;
                     case "WHOHAS":
                         Send(Socket.getLocalAddress().getHostAddress() + ":" + Socket.getLocalPort(), incoming.getAddress());
-                        break;
+                        break;*/
                     default:
                         System.out.print(incoming.toString());
                         break;
@@ -46,24 +46,10 @@ class UDPcall extends Thread {
         }
     }
 
-    //@TODO: Remove Multicast. Handle to Server
-    void AllSend(String message) throws Exception{
-        MulticastSocket multi = new MulticastSocket();
+    void Send(String message) throws Exception {
+        byte[] sendData = message.getBytes();
 
-        sendData = message.getBytes();
-
-        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, multi.getInetAddress(), this.Port);
-        multi.send(sendPacket);
-        multi.close();
-    }
-
-    //@TODO: Handle at Server
-    private void Send(String message, InetAddress dest) throws Exception {
-        //DatagramSocket clientSocket = new DatagramSocket();
-
-        sendData = message.getBytes();
-
-        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, dest, Port);
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, Server, Port);
         Socket.send(sendPacket);
 
         Socket.close();
