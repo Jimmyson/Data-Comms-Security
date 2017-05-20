@@ -18,7 +18,8 @@ public class program {
 
     public static void main(String argv[]) throws Exception
     {
-        int port = 0, index = 0;
+        //int port = 0;
+        int index = 0;
         InetAddress server = null;
         for (String param : argv) {
             switch (param) {
@@ -42,11 +43,8 @@ public class program {
             index++;
         }
 
-        //ASK FOR SERVER
-
         if(server != null) {
-            //@TODO: BUILD GUI INTERACTION
-            Listen = new TCPlistener(port);
+            Listen = new TCPlistener(TCPport);
             Call = new UDPcall(UDPport, server);
             Call.run();
 
@@ -90,7 +88,7 @@ public class program {
                     case "REQUEST":
                     case "REQ":
                         //REQUEST "FILENAME" 192.168.0.1:4000
-                        fetchFile(command[0],command[1],command[2]);
+                        fetchFile(command[0],command[1]);
                         break;
                     case "ONLINE":
                         SendMessage(input.toString());
@@ -124,12 +122,19 @@ public class program {
         System.out.print(message);
     }
 
-    private static void fetchFile(String file, String host, String port) throws Exception {
-        String srvIP = "Computer";
-        int srvPort = 6789;
-        String reqFile = "HelloWorld.txt";
+    private static void fetchFile(String file, String host) throws Exception {
+        String[] parts = host.split("\\.");
+        if(parts.length == 4) {
+            byte[] ip = new byte[4];
 
-        new TCPreceive(new Socket(srvIP, srvPort), reqFile);
+            for (int j = 0; j < parts.length; j++) {
+                ip[j] = (byte)Integer.parseInt(parts[j]);
+            }
+
+            new TCPreceive(new Socket(InetAddress.getByAddress(ip), 4001), file);
+        } else {
+            new TCPreceive(new Socket(InetAddress.getByName(host), 4001), file);
+        }
     }
 
     private static boolean shutdownCheck()
