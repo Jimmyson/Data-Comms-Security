@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * Created by Jimmyson on 3/05/2017.
  */
-public class TCPsend extends Thread {
+class TCPsend extends Thread {
     private Socket Sock;
     private File File;
 
@@ -16,7 +16,6 @@ public class TCPsend extends Thread {
     }
 
     public void run() {
-        //FIND FILE
         if (File.exists()) {
             try {
                 BufferedReader inFromFile = new BufferedReader(new FileReader(File));

@@ -1,5 +1,6 @@
 package com.jimmyson.assignment_2.client;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -53,10 +54,10 @@ public class program {
             String Name = (new InputStreamReader(System.in)).toString();
             PrintToScreen(SendMessage("WELCOME "+Name));
 
-            InputStreamReader input = new InputStreamReader(System.in);
+            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
             while(Listen.Running()) {
-                String[] command = CommandSplit(input.toString());
+                String[] command = CommandSplit(input.readLine());
                 switch(command[0].toUpperCase()) {
                     case "WELCOME":
                         break;
@@ -104,7 +105,7 @@ public class program {
                         }
                         break;
                     default:
-                        PrintToScreen(Name+": "+SendMessage(input.toString()));
+                        PrintToScreen(Name+": "+SendMessage(input.readLine()));
                 }
             }
         }

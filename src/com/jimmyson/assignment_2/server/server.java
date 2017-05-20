@@ -1,5 +1,7 @@
 package com.jimmyson.assignment_2.server;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -18,7 +20,7 @@ public class server {
     private static byte[] sendData;
     private static DatagramSocket Socket;
 
-    public static class Client {
+    static class Client {
         private String Name;
         private byte[] IP = new byte[4];
         private int Port;
@@ -42,17 +44,20 @@ public class server {
         }
     }
 
-    public static void main(String[] argv) throws Exception {
-        Socket = new DatagramSocket(Port);
-        int index;
-        StringBuilder result;
-        byte[] sendData, receiveData = new byte[1024];
+    public static class UDPlistener extends Thread {
+        private DatagramSocket Socket;
 
-        while(Active) {
+        UDPlistener(int port) throws Exception{
+            Socket = new DatagramSocket(port);
+        }
+
+        public void run() {
+            int index;
+            StringBuilder result;
             byte[] incomingData = new byte[1024];
             DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
 
-            try{
+            try {
                 while (Active) {
                     Socket.receive(incoming);
                     String[] command = CommandSplit(incoming.toString());
@@ -60,13 +65,13 @@ public class server {
                     switch(command[0].toUpperCase()) {
 
                         case "WELCOME":
-                            Clients.add(new Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
+                            Clients.add(new server.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
                             AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
                             System.out.println(incoming.getAddress().getHostName()+" AS CONNECTED");
                             break;
                         case "ONLINE":
                             result = new StringBuilder();
-                            for (Client c : Clients) {
+                            for (server.Client c : Clients) {
                                 result.append(c.GetName());
                                 result.append(" => ");
                                 result.append(IPtoString(c.GetIP()));
@@ -127,7 +132,7 @@ public class server {
                             Send(result.toString(), incoming.getAddress());
                             break;
                         case "BYE":
-                            for(Client c : Clients) {
+                            for(server.Client c : Clients) {
                                 if (incoming.getAddress().getAddress() == c.GetIP()) {
                                     AllSend(c.GetName() + " AS DISCONNECTED");
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
@@ -146,31 +151,49 @@ public class server {
             } catch(Exception e) {
                 System.out.print("Error receiving data");
             }
+        }
+    }
 
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            Socket.receive(receivePacket);
+    public static void main(String[] argv) throws Exception {
+        UDPlistener listener = new UDPlistener(Port);
+        listener.run();
 
-            String line = new String(receivePacket.getData());
-            System.out.println("Received: " + line);
+        StringBuilder result;
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        String[] command = CommandSplit(input.readLine());
 
-            InetAddress IPAddress = receivePacket.getAddress();
-            int port = receivePacket.getPort();
-
-            String capLine = line.toUpperCase();
-            sendData = capLine.getBytes();
-
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-            Socket.send(sendPacket);
-
-            Active = false;
+        while(Active) {
+            switch (command[0].toUpperCase()) {
+                case "USERS":
+                    result = new StringBuilder();
+                    for (Client c : Clients) {
+                        result.append(c.GetName());
+                        result.append(" => ");
+                        result.append(IPtoString(c.GetIP()));
+                        result.append(":'");
+                        result.append(c.GetPort());
+                        result.append("\n");
+                    }
+                    System.out.println(result.toString());
+                    break;
+                case "QUIT":
+                case "STOP":
+                    AllSend("SERVER HAS SELF-TERMINATED");
+                    return;
+                default:
+                    AllSend("SERVER: "+input.readLine());
+            }
         }
     }
 
     private static String IPtoString(byte[] IP) {
         if (IP.length == 4) {
             StringBuilder s = new StringBuilder();
-            for (byte b : IP) {
-                s.append(b & 0xFF);
+            for (int i = 0; i < IP.length; i++) {
+                s.append(IP[i] & 0xFF);
+                if (i != IP.length-1) {
+                   s.append('.');
+                }
             }
             return s.toString();
         }
