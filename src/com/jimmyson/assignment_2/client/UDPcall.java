@@ -1,4 +1,4 @@
-package com.jimmyson.assignment_2;
+package com.jimmyson.assignment_2.client;
 
 import java.net.*;
 
@@ -55,11 +55,11 @@ class UDPcall extends Thread {
         Socket.close();
     }
 
-    public void Terminate() {
+    void Terminate() {
         Active = false;
     }
 
-    public boolean GetActive() {
+    boolean GetActive() {
         return Active;
     }
 }

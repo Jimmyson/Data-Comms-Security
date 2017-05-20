@@ -1,4 +1,4 @@
-package com.jimmyson.assignment_2;
+package com.jimmyson.assignment_2.client;
 
 import java.io.File;
 import java.net.ServerSocket;
@@ -23,7 +23,7 @@ class TCPlistener {
             if(!CheckFile(request.toString())) {
                 request.close();
             } else {
-                TCPsend t = new TCPsend(request, "HelloWorld.txt");
+                TCPsend t = new TCPsend(request, request.getInputStream().toString());
                 Connects.add(t);
                 t.start();
             }

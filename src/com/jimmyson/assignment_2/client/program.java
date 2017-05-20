@@ -1,4 +1,4 @@
-package com.jimmyson.assignment_2;
+package com.jimmyson.assignment_2.client;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -11,6 +11,7 @@ import java.net.Socket;
 
 public class program {
     private static final int UDPport = 4000;
+    private static final int TCPport = 4001;
     private static TCPlistener Listen;
     private static UDPcall Call;
 
@@ -20,9 +21,9 @@ public class program {
         InetAddress server = null;
         for (String param : argv) {
             switch (param) {
-                case "-p":
-                    port = Integer.parseInt(argv[index+1]);
-                    break;
+                //case "-p":
+                    //port = Integer.parseInt(argv[index+1]);
+                    //break;
                 case "-h":
                     String[] parts = argv[index+1].split("\\.");
                     if(parts.length == 4) {
@@ -42,7 +43,7 @@ public class program {
 
         //ASK FOR SERVER
 
-        if(port >= 1024) {
+        if(server != null) {
             //@TODO: BUILD GUI INTERACTION
             Listen = new TCPlistener(port);
             Call = new UDPcall(UDPport, server);

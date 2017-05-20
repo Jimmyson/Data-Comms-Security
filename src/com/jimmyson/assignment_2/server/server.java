@@ -1,4 +1,4 @@
-package com.jimmyson.assignment_2;
+package com.jimmyson.assignment_2.server;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -13,7 +13,7 @@ import java.util.AbstractMap.SimpleEntry;
 public class server {
     private static final int Port = 4000;
     private static ArrayList<Client> Clients = new ArrayList<>();
-    private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files;
+    private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files = new ArrayList<>();
     private static boolean Active = true;
     private static byte[] sendData;
     private static DatagramSocket Socket;
@@ -43,10 +43,9 @@ public class server {
     }
 
     public static void main(String[] argv) throws Exception {
-        //READ PORT NUMBER
         Socket = new DatagramSocket(Port);
         int index;
-        StringBuilder result = new StringBuilder();
+        StringBuilder result;
         byte[] sendData, receiveData = new byte[1024];
 
         while(Active) {
@@ -61,9 +60,7 @@ public class server {
                     switch(command[0].toUpperCase()) {
 
                         case "WELCOME":
-                            //READ STRING FOR IP ADDRESS AND PORT;
-                            //LOG DEVICE
-                            Clients.add(new Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), incoming.getPort()));
+                            Clients.add(new Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
                             AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
                             System.out.println(incoming.getAddress().getHostName()+" AS CONNECTED");
                             break;
@@ -92,8 +89,6 @@ public class server {
                                     }                                }
                                 index++;
                             }
-
-                            //IF FILE DOES NOT EXIST
                             if(!found) {
                                 ArrayList<InetAddress> newClients = new ArrayList<>();
                                 newClients.add(incoming.getAddress());
@@ -132,10 +127,10 @@ public class server {
                             Send(result.toString(), incoming.getAddress());
                             break;
                         case "BYE":
-                            //REMOVE IP ADDRESS + PORT
-                            AllSend("DEVICE AS DISCONNECTED");
                             for(Client c : Clients) {
                                 if (incoming.getAddress().getAddress() == c.GetIP()) {
+                                    AllSend(c.GetName() + " AS DISCONNECTED");
+                                    System.out.println(c.GetName() + " AS DISCONNECTED");
                                     Clients.remove(c);
                                     break;
                                 }
