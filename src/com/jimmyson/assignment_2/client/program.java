@@ -27,20 +27,13 @@ public class program {
                     //port = Integer.parseInt(argv[index+1]);
                     //break;
                 case "-h":
-                    String[] parts = argv[index+1].split("\\.");
-                    if(parts.length == 4) {
-                        byte[] ip = new byte[4];
-
-                        for (int j = 0; j < parts.length; j++) {
-                            ip[j] = (byte)Integer.parseInt(parts[j]);
-                        }
-
-                        server = InetAddress.getByAddress(ip);
-                    } else {
-                        server = InetAddress.getByName(argv[index+1]);
-                    }
+                    server = (validIP(argv[index+1])) ? InetAddress.getByAddress(StringToIP(argv[index+1])) : InetAddress.getByName(argv[index+1]);
             }
             index++;
+        }
+
+        while (server == null) {
+
         }
 
         if(server != null) {
@@ -109,6 +102,30 @@ public class program {
         }
     }
 
+    private static boolean validIP(String address) {
+        String[] parts = address.split("\\.");
+        if(parts.length == 4) {
+            for(String part : parts) {
+                if(!(Integer.parseInt(part) >= 0 && Integer.parseInt(part) <= 255)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static byte[] StringToIP(String address) {
+        String[] parts = address.split("\\.");
+        byte[] ip = new byte[4];
+
+        for (int j = 0; j < parts.length; j++) {
+            ip[j] = (byte)Integer.parseInt(parts[j]);
+        }
+
+        return ip;
+    }
+
     private static String[] CommandSplit(String command) {
         return command.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
     }
@@ -123,15 +140,8 @@ public class program {
     }
 
     private static void fetchFile(String file, String host) throws Exception {
-        String[] parts = host.split("\\.");
-        if(parts.length == 4) {
-            byte[] ip = new byte[4];
-
-            for (int j = 0; j < parts.length; j++) {
-                ip[j] = (byte)Integer.parseInt(parts[j]);
-            }
-
-            new TCPreceive(new Socket(InetAddress.getByAddress(ip), 4001), file);
+        if(validIP(host)) {
+            new TCPreceive(new Socket(InetAddress.getByAddress(StringToIP(host)), 4001), file);
         } else {
             new TCPreceive(new Socket(InetAddress.getByName(host), 4001), file);
         }
@@ -140,15 +150,12 @@ public class program {
     private static boolean shutdownCheck()
     {
         //Check for active connections
-        if (Listen.CheckConnections()) {
             //Ask to rejects
-            return true;
-        }
 
         //If Active, ask
             //IF True, reject incoming connections and wait for transfer to end
             //IF False, Nothing
 
-        return false;
+        return Listen.CheckConnections();
     }
 }
