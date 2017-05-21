@@ -16,14 +16,20 @@ class TCPsend extends Thread {
 
         if (File.exists()) {
             try {
+                DataOutputStream outToClient = new DataOutputStream(Sock.getOutputStream());
+                DataInputStream input = new DataInputStream(Sock.getInputStream());
+
                 while (Sock.isConnected()) {
-                    byte[] size = new byte[(int) File.length()];
-                    BufferedInputStream inFromFile = new BufferedInputStream(new FileInputStream(File));
-                    inFromFile.read(size, 0, (int) File.length());
+                    long pos = 0;
+                    while(pos < File.length()) {
+                        byte[] size = new byte[(int) File.length()];
+                        BufferedInputStream inFromFile = new BufferedInputStream(new FileInputStream(File));
+                        inFromFile.read(size, 0, size.length);
 
-                    DataOutputStream outToClient = new DataOutputStream(Sock.getOutputStream());
-                    outToClient.write(size, 0, (int) File.length());
-
+                        outToClient.writeLong(File.length());
+                        outToClient.write(size, 0, size.length);
+                        pos += size.length;
+                    }
                     Sock.close();
                 }
             } catch(Exception e) {
