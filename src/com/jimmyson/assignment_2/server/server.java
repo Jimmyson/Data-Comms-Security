@@ -135,7 +135,7 @@ public class server {
                             Send(result.toString(), incoming.getAddress());
                             break;
                         case "BYE":
-                            for(server.Client c : Clients) {
+                            for (server.Client c : Clients) {
                                 if (incoming.getAddress().getAddress() == c.GetIP()) {
                                     //AllSend(c.GetName() + " AS DISCONNECTED");
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
@@ -173,7 +173,7 @@ public class server {
                         result.append(c.GetName());
                         result.append(" => ");
                         result.append(IPtoString(c.GetIP()));
-                        result.append(":'");
+                        result.append(":");
                         result.append(c.GetPort());
                         result.append("\n");
                     }

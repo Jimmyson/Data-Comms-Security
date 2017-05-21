@@ -45,8 +45,8 @@ class TCPlistener extends Thread {
     }
 
     void Terminate() throws Exception {
-        Accept = false;
         Server.close();
+        Accept = false;
     }
 
     boolean CheckConnections() {

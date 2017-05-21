@@ -59,7 +59,7 @@ public class program {
 
         StringBuilder result;
 
-        while(Listen.Running()) {
+        do {
             String data = input.readLine();
             String[] command = CommandSplit(data);
             switch(command[0].toUpperCase()) {
@@ -110,14 +110,14 @@ public class program {
                 case "EXIT":
                     SendMessage("BYE");
                     Call.Terminate();
-                    if (shutdownCheck()) {
+                    if (!shutdownCheck()) {
                         Listen.Terminate();
                     }
                     break;
                 default:
                     PrintToScreen(Name+": "+SendMessage(data));
             }
-        }
+        } while(Listen.Running());
     }
 
     private static boolean validFile(File file) {

@@ -57,6 +57,7 @@ class UDPcall extends Thread {
 
     void Terminate() {
         Active = false;
+        Socket.close();
     }
 
     boolean GetActive() {
