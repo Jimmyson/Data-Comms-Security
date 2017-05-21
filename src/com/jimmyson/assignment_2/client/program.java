@@ -53,40 +53,48 @@ public class program {
         Listen = new TCPlistener(TCPport);
         Call = new UDPcall(UDPport, server);
 
-        PrintToScreen("Username: ");
+        System.out.print("Username: ");
         String Name = input.readLine();
         PrintToScreen(SendMessage("WELCOME "+Name));
 
+        StringBuilder result;
 
         while(Listen.Running()) {
-            String[] command = CommandSplit(input.readLine());
+            String data = input.readLine();
+            String[] command = CommandSplit(data);
             switch(command[0].toUpperCase()) {
                 case "WELCOME":
                     break;
                 case "ADD":
-                    SendMessage(input.toString());
+                    if(validFile(new File(command[1])))
+                        SendMessage(data);
                     break;
                 case "DELETE":
                 case "DEL":
-                    SendMessage(input.toString());
+                    if(validFile(new File(command[1])))
+                        SendMessage(data);
                     break;
                 case "LIST":
                 case "LS":
-                    String formats = "\\.(avi|mp4|mkv|wmv|m4v|webm|mov|flv)";
+                    result = new StringBuilder();
                     File[] dirList = new File(".").listFiles();
                     if(dirList != null) {
                         for (File file : dirList) {
-                            String fileName = file.getName();
-                            if (fileName.substring(fileName.lastIndexOf("."), fileName.length()).matches(formats)) {
-                                System.out.print(fileName);
+                            if (validFile(file)) {
+                                result.append(file.getName());
+                                result.append("\n");
                             }
                         }
+                        if(!result.toString().equals(""))
+                            System.out.print(result.toString());
+                        else
+                            System.out.println("No files exist");
                     } else {
-                        System.out.print("No files exist");
+                        System.out.println("No files exist");
                     }
                     break;
                 case "WHOHAS":
-                    SendMessage(input.toString());
+                    SendMessage(data);
                     break;
                 case "GET":
                 case "REQUEST":
@@ -95,7 +103,7 @@ public class program {
                     fetchFile(command[0],command[1]);
                     break;
                 case "ONLINE":
-                    SendMessage(input.toString());
+                    SendMessage(data);
                     break;
                 case "Q":
                 case "QUIT":
@@ -107,9 +115,15 @@ public class program {
                     }
                     break;
                 default:
-                    PrintToScreen(Name+": "+SendMessage(input.readLine()));
+                    PrintToScreen(Name+": "+SendMessage(data));
             }
         }
+    }
+
+    private static boolean validFile(File file) {
+        String formats = ".(avi|mp4|mkv|wmv|m4v|webm|mov|flv)";
+        String name = file.getName();
+        return (file.isFile() && name.substring(name.lastIndexOf("."), name.length()).matches(formats));
     }
 
     private static boolean validIP(String address) {
@@ -146,7 +160,7 @@ public class program {
     }
 
     private static void PrintToScreen(String message) {
-        System.out.print(message);
+        System.out.println(message);
     }
 
     private static void fetchFile(String file, String host) throws Exception {

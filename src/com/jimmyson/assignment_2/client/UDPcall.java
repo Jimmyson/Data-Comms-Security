@@ -22,11 +22,11 @@ class UDPcall extends Thread {
 
     //@TODO: Handle at Sever
     public void run() {
-        byte[] incomingData = new byte[1024];
-        DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
-
-        try{
+        try {
             do {
+                byte[] incomingData = new byte[1024];
+                DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
+
                 Socket.receive(incoming);
                 String data = new String(incoming.getData());
                 switch(data) {
@@ -48,12 +48,11 @@ class UDPcall extends Thread {
     }
 
     void Send(String message) throws Exception {
-        byte[] sendData = message.getBytes();
+        byte[] sendData = new byte[1024];
+        sendData = message.getBytes();
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, Server, Port);
         Socket.send(sendPacket);
-
-        Socket.close();
     }
 
     void Terminate() {

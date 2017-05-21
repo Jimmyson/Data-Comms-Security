@@ -54,13 +54,14 @@ public class server {
         public void run() {
             int index;
             StringBuilder result;
-            byte[] incomingData = new byte[1024];
-            DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
 
             //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             try {
                 do {
+                    byte[] incomingData = new byte[1024];
+                    DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
+
                     Socket.receive(incoming);
                     String data = new String(incoming.getData());
                     String[] command = CommandSplit(data);
