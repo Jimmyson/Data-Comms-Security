@@ -1,7 +1,9 @@
 package com.jimmyson.assignment_2.client;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -25,23 +27,17 @@ class TCPlistener extends Thread {
         while (!Server.isClosed() || Accept) { //FIX THIS LOOP
             try {
                 Socket request = Server.accept();
-                if (!CheckFile(request.toString())) {
-                    request.close();
-                } else {
-                    TCPsend t = new TCPsend(request, request.getInputStream().toString());
-                    Connects.add(t);
-                    t.start();
-                }
+                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(request.getInputStream()));
+
+                String fileReq = inFromServer.readLine();
+                TCPsend t = new TCPsend(request, fileReq);
+                Connects.add(t);
+                t.start();
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private boolean CheckFile(String filename) {
-        File fileReq = new File(filename);
-        return fileReq.exists();
     }
 
     void Terminate() throws Exception {
