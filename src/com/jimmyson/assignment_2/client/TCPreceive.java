@@ -10,34 +10,20 @@ class TCPreceive {
     TCPreceive(Socket sock, String filename) throws Exception {
         //SEND REQUEST TO LISTENER
         DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
-        outToServer.writeBytes(filename);
+        InputStream inFromServer = sock.getInputStream();
+
+        outToServer.writeBytes(filename+ "\n");
 
         File file = new File(filename);
-        if(!file.exists()) {
-            FileOutputStream fileWriter = new FileOutputStream(file);
-
-            while(sock.isConnected()) {
-                //Socket sock = new Socket(srvAddr, srvPort);
-
-                //DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
-                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-
-                int chr;
-                while((chr = inFromServer.read()) > -2 && sock.isConnected()) {
-                    if(chr == -1) {
-                        sock.close();
-                    } else {
-                        fileWriter.write(chr);
-                    }
-                }
-
-                //sentence = inFromUser.readLine();
-                //outToServer.writeBytes(sentence + '\n');
-
-                //modifiedSentence = inFromServer.readLine();
-                //System.out.println("FROM SERVER: " + modifiedSentence);
-            }
-            fileWriter.close();
+        if(file.delete()) {
+            byte[] buffer = new byte[1024];
+            FileOutputStream toFile = new FileOutputStream(file);
+            BufferedOutputStream output = new BufferedOutputStream(toFile);
+            int read = inFromServer.read(buffer, 0 , buffer.length);
+            output.write(buffer, 0, buffer.length);
+            output.close();
+            sock.close();
         }
+        System.out.println("Finished Transfer!");
     }
 }

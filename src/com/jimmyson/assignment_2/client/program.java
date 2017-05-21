@@ -97,7 +97,8 @@ public class program {
                 case "REQUEST":
                 case "REQ":
                     //REQUEST "FILENAME" 192.168.0.1:4000
-                    fetchFile(command[0],command[1]);
+                    if (command.length == 3)
+                        fetchFile(command[1],command[2]);
                     break;
                 case "ONLINE":
                     SendMessage(data);
