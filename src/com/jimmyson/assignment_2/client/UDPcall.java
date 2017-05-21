@@ -26,10 +26,10 @@ class UDPcall extends Thread {
         DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
 
         try{
-            while (Active) {
+            do {
                 Socket.receive(incoming);
-
-                switch(incoming.toString()) {
+                String data = new String(incoming.getData());
+                switch(data) {
                     /*case "ONLINE":
                         Send("I am here", Server);
                         break;
@@ -37,10 +37,10 @@ class UDPcall extends Thread {
                         Send(Socket.getLocalAddress().getHostAddress() + ":" + Socket.getLocalPort(), incoming.getAddress());
                         break;*/
                     default:
-                        System.out.print(incoming.toString());
+                        System.out.println(data);
                         break;
                 }
-            }
+            } while (Active);
         } catch(Exception e) {
             System.out.println("Error receiving data");
             e.printStackTrace();

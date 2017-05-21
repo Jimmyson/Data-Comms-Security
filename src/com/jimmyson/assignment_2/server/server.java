@@ -18,7 +18,6 @@ public class server {
     private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files = new ArrayList<>();
     private static boolean Active = true;
     private static byte[] sendData;
-    private static DatagramSocket Socket;
 
     static class Client {
         private String Name;
@@ -44,7 +43,7 @@ public class server {
         }
     }
 
-    public static class UDPlistener extends Thread {
+    protected static class UDPlistener extends Thread {
         private DatagramSocket Socket;
 
         UDPlistener(int port) throws Exception{
@@ -58,13 +57,15 @@ public class server {
             byte[] incomingData = new byte[1024];
             DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
 
+            //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
             try {
-                while (Active) {
+                do {
                     Socket.receive(incoming);
-                    String[] command = CommandSplit(incoming.toString());
+                    String data = new String(incoming.getData());
+                    String[] command = CommandSplit(data);
 
                     switch(command[0].toUpperCase()) {
-
                         case "WELCOME":
                             Clients.add(new server.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
                             AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
@@ -141,14 +142,14 @@ public class server {
                                     break;
                                 }
                             }
-                            System.out.print("DEVICE AS DISCONNECTED");
+                            System.out.println("DEVICE AS DISCONNECTED");
                             break;
                         default:
                             //AllSend(incoming.toString());
-                            //System.out.print(incoming.toString());
+                            System.out.println(data);
                             break;
                     }
-                }
+                } while (Active);
             } catch(Exception e) {
                 System.out.print("Error receiving data");
             }
@@ -182,8 +183,11 @@ public class server {
                 case "QUIT":
                 case "STOP":
                     System.out.println("TERMINATING...");
+                    Active = false;
+                    listener.interrupt();
+                    Send("SERVER HAS SELF-TERMINATED", InetAddress.getLocalHost());
                     //AllSend("SERVER HAS SELF-TERMINATED");
-                    return;
+                    break;
                 default:
                     //AllSend("SERVER: "+input.readLine());
                     break;
@@ -222,8 +226,9 @@ public class server {
 
     private static void Send(String message, InetAddress dest) throws Exception {
         sendData = message.getBytes();
+        DatagramSocket socket = new DatagramSocket();
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, dest, Port);
-        Socket.send(sendPacket);
+        socket.send(sendPacket);
     }
 }
