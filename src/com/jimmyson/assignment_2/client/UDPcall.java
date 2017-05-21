@@ -4,6 +4,7 @@ import java.net.*;
 
 /**
  * Created by Jimmyson on 3/05/2017.
+ * @author James Crawford 9962522
  */
 
 class UDPcall extends Thread {
@@ -12,6 +13,13 @@ class UDPcall extends Thread {
     private DatagramSocket Socket;
     private InetAddress Server;
 
+    /**
+     * UDP service to send commands to the directory server.
+     *
+     * @param port Server's port number
+     * @param server Server's IP address
+     * @throws Exception When Port is active use byh another process
+     */
     UDPcall(int port, InetAddress server) throws Exception {
         Server = server;
         Port = port;
@@ -20,7 +28,9 @@ class UDPcall extends Thread {
         this.start();
     }
 
-    //@TODO: Handle at Sever
+    /**
+     * Listens for incoming UDP data from the server and prints to the application.
+     */
     public void run() {
         try {
             do {
@@ -47,6 +57,12 @@ class UDPcall extends Thread {
         }
     }
 
+    /**
+     * Sends requets to the Server
+     *
+     * @param message Command to the server
+     * @throws Exception When Socket is broken
+     */
     void Send(String message) throws Exception {
         byte[] sendData = new byte[1024];
         sendData = message.getBytes();
@@ -55,11 +71,18 @@ class UDPcall extends Thread {
         Socket.send(sendPacket);
     }
 
+    /**
+     * Kills the UDP listener process
+     */
     void Terminate() {
         Active = false;
         Socket.close();
     }
 
+    /**
+     * Returns the active state of the UPD process
+     * @return Boolean state of the UDP process
+     */
     boolean GetActive() {
         return Active;
     }

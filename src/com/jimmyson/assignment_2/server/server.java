@@ -11,46 +11,90 @@ import java.util.AbstractMap.SimpleEntry;
 
 /**
  * Created by Jimmyson on 17/05/2017.
+ * @author James Crawford 9962522
  */
 public class server {
+    /**
+     * Array of Clients
+     * Array of files with a sub array of clients that have said file
+     */
     private static final int Port = 4000;
     private static ArrayList<server.Client> Clients = new ArrayList<>();
     private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files = new ArrayList<>();
     private static boolean Active = true;
     private static byte[] sendData;
 
+    /**
+     * A client object
+     */
     static class Client {
         private String Name;
         private byte[] IP = new byte[4];
         private int Port;
 
+        /**
+         * Builds the Client object, storing only the essentials
+         * @param name Hostname
+         * @param ip IP address as a byte array
+         * @param port Port of their TCP Listener
+         */
         Client(String name, byte[] ip, int port) {
             this.Name = name;
             this.IP = ip;
             this.Port = port;
         }
 
+        /**
+         * Return's their IP address
+         * @return Client's IPv4
+         */
         byte[] GetIP() {
             return IP;
         }
 
+        /**
+         * Return's their Hostname
+         * @return Client's Hostname
+         */
         String GetName() {
             return Name;
         }
 
+        /**
+         * Return's their TCP Port address
+         * @return Client's TCP Port address
+         */
         int GetPort() {
             return Port;
         }
     }
 
+    /**
+     * UDP listener for the incoming commands
+     */
     protected static class UDPlistener extends Thread {
         private DatagramSocket Socket;
 
+        /**
+         * Sets up the host socket at the specified port
+         * @param port Server's Port
+         * @throws Exception When port is in use.
+         */
         UDPlistener(int port) throws Exception{
             Socket = new DatagramSocket(port);
             this.start();
         }
 
+        /**
+         * Thread command to initiate the UDP listener
+         * Lists for the following commands
+         * * WELCOME (Registers a new client)
+         * * ONLINE (Sends response of active clients)
+         * * ADD (Registers a file to the DB, including client)
+         * * DELETE (Removes a cilent from a file association, and file when no more clients have file)
+         * * WHOHAS (Sends response of active clients with file
+         * * BYE (Deregisters a client)
+         */
         public void run() {
             int index;
             StringBuilder result;
@@ -148,6 +192,21 @@ public class server {
                                     //AllSend(c.GetName() + " AS DISCONNECTED");
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
                                     Clients.remove(c);
+
+                                    index = 0;
+                                    for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                                        if (file.getKey().equals(command[1])) {
+                                            ArrayList<InetAddress> clients = file.getValue();
+                                            clients.remove(incoming.getAddress());
+                                            if(clients.size() > 0) {
+                                                Files.set(index, new SimpleEntry<>(file.getKey(), clients));
+                                            } else {
+                                                Files.remove(index);
+                                            }
+                                            break;
+                                        }
+                                        index++;
+                                    }
                                     break;
                                 }
                             }
@@ -165,7 +224,23 @@ public class server {
         }
     }
 
+    /**
+     * Server's interaction with process
+     *
+     * @param argv Program Arguments
+     * @throws Exception When input invalid
+     */
     public static void main(String[] argv) throws Exception {
+        int index = 0;
+        for (String param : argv) {
+            switch (param) {
+                case "-p":
+                int port = Integer.parseInt(argv[index+1]);
+                break;
+            }
+            index++;
+        }
+
         UDPlistener listener = new UDPlistener(Port);
 
         StringBuilder result;
@@ -204,6 +279,12 @@ public class server {
         }
     }
 
+    /**
+     * Converts IP address to String to be printed
+     *
+     * @param IP IP Address array
+     * @return IP Address as string
+     */
     private static String IPtoString(byte[] IP) {
         if (IP.length == 4) {
             StringBuilder s = new StringBuilder();
@@ -218,6 +299,13 @@ public class server {
         return null;
     }
 
+    /**
+     * Splits the inputs at the spaces for command breakdown.
+     * Does not encapsulate Quotation  Marks
+     *
+     * @param command User Input
+     * @return Array of sub-commands
+     */
     private static String[] CommandSplit(String command) {
         //return command.split("(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
         return command.split(" ");
@@ -234,6 +322,13 @@ public class server {
         System.out.println("SERVER: "+message);
     }*/
 
+    /**
+     * Sends response to the Client
+     *
+     * @param message Command to the client
+     * @param dest Client's IP
+     * @throws Exception When Socket is broken
+     */
     private static void Send(String message, InetAddress dest) throws Exception {
         byte[] sendData = new byte[1024];
         sendData = message.getBytes();
