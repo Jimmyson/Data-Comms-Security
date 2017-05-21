@@ -1,5 +1,6 @@
 package com.jimmyson.assignment_2.client;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -32,72 +33,81 @@ public class program {
             index++;
         }
 
-        while (server == null) {
 
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        while (server == null) {
+            System.out.print("Specify Server to connect to: ");
+            String host = input.readLine();
+
+            try {
+                if (!host.trim().equals(""))
+                    server = (validIP(host)) ? InetAddress.getByAddress(StringToIP(host)) : InetAddress.getByName(host);
+                else
+                    System.out.println("Not a valid input. Try again!");
+            } catch (Exception e) {
+                System.out.println("Server does not exist at "+host);
+                return;
+            }
         }
 
-        if(server != null) {
-            Listen = new TCPlistener(TCPport);
-            Call = new UDPcall(UDPport, server);
-            Call.run();
+        Listen = new TCPlistener(TCPport);
+        Call = new UDPcall(UDPport, server);
 
-            PrintToScreen("Username: ");
-            String Name = (new InputStreamReader(System.in)).toString();
-            PrintToScreen(SendMessage("WELCOME "+Name));
+        PrintToScreen("Username: ");
+        String Name = input.readLine();
+        PrintToScreen(SendMessage("WELCOME "+Name));
 
-            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-            while(Listen.Running()) {
-                String[] command = CommandSplit(input.readLine());
-                switch(command[0].toUpperCase()) {
-                    case "WELCOME":
-                        break;
-                    case "ADD":
-                        SendMessage(input.toString());
-                        break;
-                    case "DELETE":
-                    case "DEL":
-                        SendMessage(input.toString());
-                        break;
-                    case "LIST":
-                    case "LS":
-                        String formats = "\\.(avi|mp4|mkv|wmv|m4v|webm|mov|flv)";
-                        File[] dirList = new File(".").listFiles();
-                        if(dirList != null) {
-                            for (File file : dirList) {
-                                String fileName = file.getName();
-                                if (fileName.substring(fileName.lastIndexOf("."), fileName.length()).matches(formats)) {
-                                    System.out.print(fileName);
-                                }
+        while(Listen.Running()) {
+            String[] command = CommandSplit(input.readLine());
+            switch(command[0].toUpperCase()) {
+                case "WELCOME":
+                    break;
+                case "ADD":
+                    SendMessage(input.toString());
+                    break;
+                case "DELETE":
+                case "DEL":
+                    SendMessage(input.toString());
+                    break;
+                case "LIST":
+                case "LS":
+                    String formats = "\\.(avi|mp4|mkv|wmv|m4v|webm|mov|flv)";
+                    File[] dirList = new File(".").listFiles();
+                    if(dirList != null) {
+                        for (File file : dirList) {
+                            String fileName = file.getName();
+                            if (fileName.substring(fileName.lastIndexOf("."), fileName.length()).matches(formats)) {
+                                System.out.print(fileName);
                             }
-                        } else {
-                            System.out.print("No files exist");
                         }
-                        break;
-                    case "WHOHAS":
-                        SendMessage(input.toString());
-                        break;
-                    case "GET":
-                    case "REQUEST":
-                    case "REQ":
-                        //REQUEST "FILENAME" 192.168.0.1:4000
-                        fetchFile(command[0],command[1]);
-                        break;
-                    case "ONLINE":
-                        SendMessage(input.toString());
-                        break;
-                    case "Q":
-                    case "QUIT":
-                    case "EXIT":
-                        SendMessage("BYE");
-                        Call.Terminate();
-                        if (shutdownCheck()) {
-                            Listen.Terminate();
-                        }
-                        break;
-                    default:
-                        PrintToScreen(Name+": "+SendMessage(input.readLine()));
-                }
+                    } else {
+                        System.out.print("No files exist");
+                    }
+                    break;
+                case "WHOHAS":
+                    SendMessage(input.toString());
+                    break;
+                case "GET":
+                case "REQUEST":
+                case "REQ":
+                    //REQUEST "FILENAME" 192.168.0.1:4000
+                    fetchFile(command[0],command[1]);
+                    break;
+                case "ONLINE":
+                    SendMessage(input.toString());
+                    break;
+                case "Q":
+                case "QUIT":
+                case "EXIT":
+                    SendMessage("BYE");
+                    Call.Terminate();
+                    if (shutdownCheck()) {
+                        Listen.Terminate();
+                    }
+                    break;
+                default:
+                    PrintToScreen(Name+": "+SendMessage(input.readLine()));
             }
         }
     }

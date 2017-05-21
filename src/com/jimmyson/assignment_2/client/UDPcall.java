@@ -42,7 +42,8 @@ class UDPcall extends Thread {
                 }
             }
         } catch(Exception e) {
-            System.out.print("Error receiving data");
+            System.out.println("Error receiving data");
+            e.printStackTrace();
         }
     }
 
