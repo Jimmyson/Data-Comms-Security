@@ -13,20 +13,19 @@ class TCPsend extends Thread {
     TCPsend(Socket sock, String filename) {
         this.Sock = sock;
         this.File = new File(filename);
-    }
 
-    public void run() {
         if (File.exists()) {
             try {
-                BufferedReader inFromFile = new BufferedReader(new FileReader(File));
-
                 while (Sock.isConnected()) {
+                    byte[] size = new byte[(int) File.length()];
+                    BufferedInputStream inFromFile = new BufferedInputStream(new FileInputStream(File));
+                    inFromFile.read(size, 0, (int) File.length());
+
                     DataOutputStream outToClient = new DataOutputStream(Sock.getOutputStream());
-                    outToClient.writeBytes(inFromFile.readLine());
+                    outToClient.write(size, 0, (int) File.length());
+
+                    Sock.close();
                 }
-
-                Sock.close();
-
             } catch(Exception e) {
                 e.printStackTrace();
             }
