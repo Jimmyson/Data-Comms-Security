@@ -49,6 +49,7 @@ public class server {
 
         UDPlistener(int port) throws Exception{
             Socket = new DatagramSocket(port);
+            this.start();
         }
 
         public void run() {
@@ -143,8 +144,8 @@ public class server {
                             System.out.print("DEVICE AS DISCONNECTED");
                             break;
                         default:
-                            AllSend(incoming.toString());
-                            System.out.print(incoming.toString());
+                            //AllSend(incoming.toString());
+                            //System.out.print(incoming.toString());
                             break;
                     }
                 }
@@ -156,13 +157,12 @@ public class server {
 
     public static void main(String[] argv) throws Exception {
         UDPlistener listener = new UDPlistener(Port);
-        listener.run();
 
         StringBuilder result;
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-        String[] command = CommandSplit(input.readLine());
 
         while(Active) {
+            String[] command = CommandSplit(input.readLine());
             switch (command[0].toUpperCase()) {
                 case "USERS":
                     result = new StringBuilder();
@@ -174,14 +174,19 @@ public class server {
                         result.append(c.GetPort());
                         result.append("\n");
                     }
-                    System.out.println(result.toString());
+                    if(!result.toString().equals(""))
+                        System.out.println(result.toString());
+                    else
+                        System.out.println("No users connected");
                     break;
                 case "QUIT":
                 case "STOP":
-                    AllSend("SERVER HAS SELF-TERMINATED");
+                    System.out.println("TERMINATING...");
+                    //AllSend("SERVER HAS SELF-TERMINATED");
                     return;
                 default:
-                    AllSend("SERVER: "+input.readLine());
+                    //AllSend("SERVER: "+input.readLine());
+                    break;
             }
         }
     }
@@ -212,6 +217,7 @@ public class server {
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, multi.getInetAddress(), Port);
         multi.send(sendPacket);
         multi.close();
+        System.out.println("SERVER: "+message);
     }
 
     private static void Send(String message, InetAddress dest) throws Exception {
@@ -219,7 +225,5 @@ public class server {
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, dest, Port);
         Socket.send(sendPacket);
-
-        Socket.close();
     }
 }
