@@ -151,7 +151,8 @@ public class program {
     }
 
     private static String[] CommandSplit(String command) {
-        return command.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        //return command.split("(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        return command.split(" ");
     }
 
     private static String SendMessage(String message) throws Exception {

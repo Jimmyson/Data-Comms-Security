@@ -14,7 +14,7 @@ import java.util.AbstractMap.SimpleEntry;
  */
 public class server {
     private static final int Port = 4000;
-    private static ArrayList<Client> Clients = new ArrayList<>();
+    private static ArrayList<server.Client> Clients = new ArrayList<>();
     private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files = new ArrayList<>();
     private static boolean Active = true;
     private static byte[] sendData;
@@ -66,10 +66,10 @@ public class server {
                     String data = new String(incoming.getData());
                     String[] command = CommandSplit(data);
 
-                    switch(command[0].toUpperCase()) {
+                    switch(command[0].trim().toUpperCase()) {
                         case "WELCOME":
                             Clients.add(new server.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
-                            AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
+                            //AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
                             System.out.println(incoming.getAddress().getHostName()+" AS CONNECTED");
                             break;
                         case "ONLINE":
@@ -137,7 +137,7 @@ public class server {
                         case "BYE":
                             for(server.Client c : Clients) {
                                 if (incoming.getAddress().getAddress() == c.GetIP()) {
-                                    AllSend(c.GetName() + " AS DISCONNECTED");
+                                    //AllSend(c.GetName() + " AS DISCONNECTED");
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
                                     Clients.remove(c);
                                     break;
@@ -153,6 +153,7 @@ public class server {
                 } while (Active);
             } catch(Exception e) {
                 System.out.print("Error receiving data");
+                e.printStackTrace();
             }
         }
     }
@@ -165,8 +166,8 @@ public class server {
 
         while(Active) {
             String[] command = CommandSplit(input.readLine());
-            switch (command[0].toUpperCase()) {
-                case "USERS":
+            switch (command[0].trim().toUpperCase()) {
+                case "ONLINE":
                     result = new StringBuilder();
                     for (Client c : Clients) {
                         result.append(c.GetName());
@@ -211,10 +212,11 @@ public class server {
     }
 
     private static String[] CommandSplit(String command) {
-        return command.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        //return command.split("(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        return command.split(" ");
     }
 
-    private static void AllSend(String message) throws Exception{
+    /*private static void AllSend(String message) throws Exception{
         MulticastSocket multi = new MulticastSocket();
 
         sendData = message.getBytes();
@@ -223,9 +225,10 @@ public class server {
         multi.send(sendPacket);
         multi.close();
         System.out.println("SERVER: "+message);
-    }
+    }*/
 
     private static void Send(String message, InetAddress dest) throws Exception {
+        byte[] sendData = new byte[1024];
         sendData = message.getBytes();
         DatagramSocket socket = new DatagramSocket();
 
