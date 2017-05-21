@@ -54,6 +54,7 @@ public class server {
         public void run() {
             int index;
             StringBuilder result;
+            boolean found;
 
             //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
@@ -63,12 +64,19 @@ public class server {
                     DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
 
                     Socket.receive(incoming);
-                    String data = new String(incoming.getData());
+                    String data = new String(incoming.getData()).trim();
                     String[] command = CommandSplit(data);
 
                     switch(command[0].trim().toUpperCase()) {
                         case "WELCOME":
-                            Clients.add(new server.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
+                            found = false;
+                            for (server.Client c : Clients) {
+                                if (incoming.getAddress().getHostName().equals(c.GetName())) {
+                                    found = true;
+                                }
+                            }
+                            if(!found)
+                                Clients.add(new server.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
                             //AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
                             System.out.println(incoming.getAddress().getHostName()+" AS CONNECTED");
                             break;
@@ -85,7 +93,7 @@ public class server {
                             Send(result.toString(), incoming.getAddress());
                             break;
                         case "ADD":
-                            boolean found = false;
+                            found = false;
                             index = 0;
                             for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
                                 if (file.getKey().equals(command[1])) {
@@ -136,14 +144,13 @@ public class server {
                             break;
                         case "BYE":
                             for (server.Client c : Clients) {
-                                if (incoming.getAddress().getAddress() == c.GetIP()) {
+                                if (incoming.getAddress().getHostName().equals(c.GetName())) {
                                     //AllSend(c.GetName() + " AS DISCONNECTED");
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
                                     Clients.remove(c);
                                     break;
                                 }
                             }
-                            System.out.println("DEVICE AS DISCONNECTED");
                             break;
                         default:
                             //AllSend(incoming.toString());
