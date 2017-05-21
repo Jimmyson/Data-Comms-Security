@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/COS20012.iml" filepath="$PROJECT_DIR$/.idea/COS20012.iml" />
+      <module fileurl="file://C:\Users\Jimmyson\IdeaProjects\Data-Comms-Security\.idea\COS20012.iml" filepath="C:\Users\Jimmyson\IdeaProjects\Data-Comms-Security\.idea\COS20012.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Data-Comms-Security.iml" filepath="$PROJECT_DIR$/Data-Comms-Security.iml" />
     </modules>
   </component>
 </project>
