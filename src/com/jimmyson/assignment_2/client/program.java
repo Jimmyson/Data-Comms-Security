@@ -66,9 +66,6 @@ public class program {
                 case "WELCOME":
                     break;
                 case "ADD":
-                    if(validFile(new File(command[1])))
-                        SendMessage(data);
-                    break;
                 case "DELETE":
                 case "DEL":
                     if(validFile(new File(command[1])))
