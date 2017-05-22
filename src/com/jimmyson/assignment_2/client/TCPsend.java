@@ -2,6 +2,9 @@ package com.jimmyson.assignment_2.client;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 
 /**
  * Created by Jimmyson on 3/05/2017.
@@ -25,6 +28,7 @@ class TCPsend extends Thread {
      *
      * @param sock The Active Connection to the Client
      * @param filename The Literal name of the file being sent
+     * @url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
      */
     TCPsend(Socket sock, String filename) {
         this.Sock = sock;
@@ -32,22 +36,21 @@ class TCPsend extends Thread {
 
         if (File.exists()) {
             try {
-                DataOutputStream outToClient = new DataOutputStream(Sock.getOutputStream());
-                DataInputStream input = new DataInputStream(Sock.getInputStream());
+                System.out.println("Sending \""+filename+"\" to "+sock.getInetAddress().getHostAddress());
+                SocketChannel sockChan = SocketChannel.open(sock.getRemoteSocketAddress());
+                RandomAccessFile accessFile = new RandomAccessFile(File, "r");
+                FileChannel inFromFile = accessFile.getChannel();
 
-                while (Sock.isConnected()) {
-                    long pos = 0;
-                    while(pos < File.length()) {
-                        byte[] size = new byte[(int) File.length()];
-                        BufferedInputStream inFromFile = new BufferedInputStream(new FileInputStream(File));
-                        inFromFile.read(size, 0, size.length);
+                ByteBuffer buffer = ByteBuffer.allocate(1024);
 
-                        outToClient.writeLong(File.length());
-                        outToClient.write(size, 0, size.length);
-                        pos += size.length;
-                    }
-                    Sock.close();
+                while (inFromFile.read(buffer) > 0) {
+                    buffer.flip();
+                    sockChan.write(buffer);
                 }
+
+                System.out.println("Finished sending \""+filename + "\"");
+                sockChan.close();
+                accessFile.close();
             } catch(Exception e) {
                 e.printStackTrace();
             }

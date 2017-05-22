@@ -2,6 +2,9 @@ package com.jimmyson.assignment_2.client;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 
 /**
  * Created by Jimmyson on 3/05/2017.
@@ -16,6 +19,7 @@ class TCPreceive {
      *
      * @param sock Connection to the server
      * @param filename Filename of the Requested file
+     * @url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
      * @throws Exception When socket connection is broken, or file is not accessible
      */
     TCPreceive(Socket sock, String filename) throws Exception {
@@ -27,20 +31,21 @@ class TCPreceive {
 
         File file = new File(filename);
         if(file.delete()) {
-            long size = inFromServer.readLong();
-            long pos = 0;
+            System.out.println("Getting \"" + filename + "\" from " + sock.getInetAddress().getHostAddress());
+            SocketChannel sockChan = sock.getChannel();
 
-            FileOutputStream toFile = new FileOutputStream(file);
-            BufferedOutputStream output = new BufferedOutputStream(toFile);
+            RandomAccessFile accessFile = new RandomAccessFile(filename, "rw");
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            FileChannel fileChan = accessFile.getChannel();
 
-            while (pos <= size) {
-                byte[] localBuf = new byte[inFromServer.readInt()];
-                inFromServer.read(localBuf, 0, localBuf.length);
-                toFile.write(localBuf);
-                pos += localBuf.length;
-                //pos += inFromServer.
+            while (sockChan.read(buffer) > 0) {
+                buffer.flip();
+                fileChan.write(buffer);
+                buffer.clear();
             }
-            output.close();
+            fileChan.close();
+            System.out.println("\"" + filename + "\" has been received");
+            sockChan.close();
             sock.close();
         }
         System.out.println("Finished Transfer!");
