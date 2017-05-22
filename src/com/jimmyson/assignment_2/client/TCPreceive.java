@@ -16,7 +16,8 @@ class TCPreceive {
      *
      * @param sock Connection to the VideoServer
      * @param filename Filename of the Requested file
-     * //@url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
+     *
+     * URL http://stackoverflow.com/questions/4687615/how-to-achieve-transfer-file-between-client-and-server-using-java-socket
      * @throws Exception When socket connection is broken, or file is not accessible
      */
     TCPreceive(Socket sock, String filename) throws Exception {

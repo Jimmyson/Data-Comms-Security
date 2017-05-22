@@ -25,7 +25,8 @@ class TCPsend extends Thread {
      *
      * @param sock The Active Connection to the Client
      * @param filename The Literal name of the file being sent
-     * //@url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
+     *
+     * URL: http://stackoverflow.com/questions/4687615/how-to-achieve-transfer-file-between-client-and-server-using-java-socket
      */
     TCPsend(Socket sock, String filename) {
         this.Sock = sock;
