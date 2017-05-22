@@ -50,6 +50,7 @@ class UDPcall extends Thread {
                         System.out.println(data);
                         break;
                 }
+                Socket.close();
             } while (Active);
         } catch(Exception e) {
             System.out.println("Error receiving data");
