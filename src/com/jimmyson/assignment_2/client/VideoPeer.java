@@ -64,6 +64,7 @@ public class VideoPeer {
         System.out.print("Username: ");
         String Name = input.readLine();
         PrintToScreen(SendMessage("WELCOME "+Name));
+        PrintHelp();
 
         StringBuilder result;
 
@@ -99,7 +100,8 @@ public class VideoPeer {
                     }
                     break;
                 case "WHOHAS":
-                    SendMessage(data);
+                    if(command.length == 2)
+                        SendMessage(data);
                     break;
                 case "GET":
                 case "REQUEST":
@@ -109,15 +111,22 @@ public class VideoPeer {
                         fetchFile(command[1],command[2]);
                     break;
                 case "ONLINE":
-                    SendMessage(data);
+                    if (command.length == 1)
+                        SendMessage(data);
+                    break;
+                case "HELP":
+                    PrintHelp();
                     break;
                 case "Q":
+                case "BYE":
                 case "QUIT":
                 case "EXIT":
-                    SendMessage("BYE");
-                    Call.Terminate();
-                    if (!shutdownCheck()) {
-                        Listen.Terminate();
+                    if (command.length == 1) {
+                        SendMessage("BYE");
+                        Call.Terminate();
+                        if (!shutdownCheck()) {
+                            Listen.Terminate();
+                        }
                     }
                     break;
                 default:
@@ -162,6 +171,21 @@ public class VideoPeer {
             return true;
         }
         return false;
+    }
+
+    private static void PrintHelp() {
+        System.out.println("---------------");
+        System.out.println("Accepted Commands");
+        System.out.println();
+        System.out.println("ADD - Add file to server");
+        System.out.println("REMOVE - Remove file from server");
+        System.out.println("ONLINE - Print Connected Users");
+        System.out.println("REQUEST - Request file from users");
+        System.out.println("WHOHAS - Find who has file");
+        System.out.println("LIST - Show valid files");
+        System.out.println("HELP - Print this output");
+        System.out.println("QUIT/BYE - Terminate Server");
+        System.out.println("---------------");
     }
 
     /**

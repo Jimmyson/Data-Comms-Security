@@ -38,6 +38,7 @@ class TCPlistener extends Thread {
         while (!Server.isClosed() || Accept) { //FIX THIS LOOP
             try {
                 Socket request = Server.accept();
+                CheckConnections();
                 BufferedReader inFromServer = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
                 String fileReq = inFromServer.readLine();
@@ -46,7 +47,7 @@ class TCPlistener extends Thread {
                 t.start();
             }
             catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
     }
@@ -68,9 +69,10 @@ class TCPlistener extends Thread {
      */
     boolean CheckConnections() {
         for (TCPsend connect : Connects) {
-            if(connect.isConnected()) {
+            if(!connect.isClosed()) {
                 return true;
             }
+            Connects.remove(connect);
         }
         return false;
     }

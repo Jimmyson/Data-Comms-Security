@@ -100,7 +100,7 @@ public class VideoServer {
             boolean found;
 
             System.out.println("SERVER HAS STARTED!");
-            System.out.println("** " + Socket.getLocalAddress() + ":" + Socket.getLocalPort() + "**");
+            System.out.println("** " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getLocalPort() + "**");
             PrintHelp();
 
             //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -177,15 +177,25 @@ public class VideoServer {
                             break;
                         case "WHOHAS":
                             result = new StringBuilder();
-                            for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
-                                if (file.getKey().equals(command[1])) {
-                                    for (InetAddress IP : file.getValue()) {
-                                        result.append(IP.getHostAddress());
-                                        result.append("\n");
+
+                            if(command.length > 1) {
+                                for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                                    if (file.getKey().equals(command[1])) {
+                                        for (InetAddress IP : file.getValue()) {
+                                            result.append(IP.getHostAddress());
+                                            result.append("\n");
+                                        }
+                                        break;
                                     }
-                                    break;
                                 }
+                                if (result.toString().equals("")) {
+                                    result.append("No users have ");
+                                    result.append(command[1]);
+                                }
+                            } else {
+                                result.append("Invalid Request");
                             }
+
                             Send(result.toString(), incoming.getAddress());
                             break;
                         case "BYE":

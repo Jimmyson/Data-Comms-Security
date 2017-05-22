@@ -72,7 +72,7 @@ class TCPsend extends Thread {
      * Checks to see if the connection is active
      * @return True when connection is active
      */
-    boolean isConnected() {
-        return (Sock.isConnected());
+    boolean isClosed() {
+        return (Sock.isClosed());
     }
 }
