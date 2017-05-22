@@ -30,24 +30,29 @@ class TCPreceive {
         outToServer.writeBytes(filename+ "\n");
 
         File file = new File(filename);
-        if(file.delete()) {
-            System.out.println("Getting \"" + filename + "\" from " + sock.getInetAddress().getHostAddress());
-            SocketChannel sockChan = sock.getChannel();
-
-            RandomAccessFile accessFile = new RandomAccessFile(filename, "rw");
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
-            FileChannel fileChan = accessFile.getChannel();
-
-            while (sockChan.read(buffer) > 0) {
-                buffer.flip();
-                fileChan.write(buffer);
-                buffer.clear();
-            }
-            fileChan.close();
-            System.out.println("\"" + filename + "\" has been received");
-            sockChan.close();
-            sock.close();
+        if(file.exists()) {
+            if(file.delete()) {
+                System.out.println("Overwriting file with matching name");
+            };
         }
+
+        System.out.println("Getting \"" + filename + "\" from " + sock.getInetAddress().getHostAddress());
+        SocketChannel sockChan = sock.getChannel();
+
+        RandomAccessFile accessFile = new RandomAccessFile(filename, "rw");
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        FileChannel fileChan = accessFile.getChannel();
+
+        while (sockChan.read(buffer) > 0) {
+            buffer.flip();
+            fileChan.write(buffer);
+            buffer.clear();
+        }
+        fileChan.close();
+        System.out.println("\"" + filename + "\" has been received");
+        sockChan.close();
+
+        sock.close();
         System.out.println("Finished Transfer!");
     }
 }
