@@ -161,19 +161,18 @@ public class VideoServer {
                             System.out.println("Added "+command[1]+" from "+incoming.getAddress().getHostAddress());
                             break;
                         case "DELETE":
-                            index = 0;
-                            for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                            for (index = 0; index < Files.size(); index++) {
+                                SimpleEntry<String, ArrayList<InetAddress>> file = Files.get(index);
                                 if (file.getKey().equals(command[1])) {
                                     ArrayList<InetAddress> clients = file.getValue();
                                     clients.remove(incoming.getAddress());
                                     if(clients.size() > 0) {
                                         Files.set(index, new SimpleEntry<>(file.getKey(), clients));
                                     } else {
-                                        Files.remove(index);
+                                        Files.remove(file);
                                     }
                                     break;
                                 }
-                                index++;
                             }
                             break;
                         case "WHOHAS":
@@ -196,19 +195,17 @@ public class VideoServer {
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
                                     Clients.remove(c);
 
-                                    index = 0;
-                                    for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
-                                        if (file.getKey().equals(command[1])) {
-                                            ArrayList<InetAddress> clients = file.getValue();
-                                            clients.remove(incoming.getAddress());
-                                            if(clients.size() > 0) {
-                                                Files.set(index, new SimpleEntry<>(file.getKey(), clients));
-                                            } else {
-                                                Files.remove(index);
-                                            }
-                                            break;
+                                    for (index = 0; index < Files.size(); index++) {
+                                        SimpleEntry<String, ArrayList<InetAddress>> file = Files.get(index);
+                                        ArrayList<InetAddress> clients = file.getValue();
+                                        clients.remove(incoming.getAddress());
+                                        if(clients.size() > 0) {
+                                            Files.set(index, new SimpleEntry<>(file.getKey(), clients));
+                                        } else {
+                                            Files.remove(file);
+                                            index--;
                                         }
-                                        index++;
+                                            //break;
                                     }
                                     break;
                                 }
