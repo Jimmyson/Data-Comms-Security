@@ -1,7 +1,6 @@
 package com.jimmyson.assignment_2.client;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -42,7 +41,7 @@ class TCPlistener extends Thread {
                 BufferedReader inFromServer = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
                 String fileReq = inFromServer.readLine();
-                TCPsend t = new TCPsend(request, fileReq);
+                TCPsend t = new TCPsend(new Socket(request.getInetAddress(),request.getPort()), fileReq);
                 Connects.add(t);
                 t.start();
             }

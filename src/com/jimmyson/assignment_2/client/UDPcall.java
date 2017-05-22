@@ -23,7 +23,6 @@ class UDPcall extends Thread {
     UDPcall(int port, InetAddress server) throws Exception {
         Server = server;
         Port = port;
-        Socket = new DatagramSocket(Port);
         Active = true;
         this.start();
     }
@@ -34,6 +33,7 @@ class UDPcall extends Thread {
     public void run() {
         try {
             do {
+                Socket = new DatagramSocket(Port);
                 byte[] incomingData = new byte[1024];
                 DatagramPacket incoming = new DatagramPacket(incomingData, incomingData.length);
 
@@ -64,11 +64,13 @@ class UDPcall extends Thread {
      * @throws Exception When Socket is broken
      */
     void Send(String message) throws Exception {
+        DatagramSocket sockToServer = new DatagramSocket();
         byte[] sendData = new byte[1024];
         sendData = message.getBytes();
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, Server, Port);
-        Socket.send(sendPacket);
+        sockToServer.send(sendPacket);
+        sockToServer.close();
     }
 
     /**

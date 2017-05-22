@@ -2,9 +2,6 @@ package com.jimmyson.assignment_2.client;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
 
 /**
  * Created by Jimmyson on 3/05/2017.
@@ -19,33 +16,36 @@ class TCPreceive {
      *
      * @param sock Connection to the server
      * @param filename Filename of the Requested file
-     * @url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
+     * //@url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
      * @throws Exception When socket connection is broken, or file is not accessible
      */
     TCPreceive(Socket sock, String filename) throws Exception {
         //SEND REQUEST TO LISTENER
+        int byteRead;
+        byte[] byteBuf = new byte[1];
+
         DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
-        DataInputStream inFromServer = new DataInputStream(sock.getInputStream());
+        InputStream inFromServer = sock.getInputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        System.out.println("Getting \"" + filename + "\" from " + sock.getInetAddress().getHostAddress());
 
         outToServer.writeBytes(filename+ "\n");
 
-        File file = new File(filename);
+        BufferedOutputStream bufFileOutput = new BufferedOutputStream(new FileOutputStream(filename));
+        inFromServer.read(byteBuf, 0, byteBuf.length);
 
-        System.out.println("Getting \"" + filename + "\" from " + sock.getInetAddress().getHostAddress());
-        SocketChannel sockChan = sock.getChannel();
+        do {
+            baos.write(byteBuf);
+            byteRead = inFromServer.read(byteBuf);
+        } while (byteRead != -1);
 
-        RandomAccessFile accessFile = new RandomAccessFile(file, "rw");
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
-        FileChannel fileChan = accessFile.getChannel();
+        bufFileOutput.write(baos.toByteArray());
+        bufFileOutput.flush();
+        bufFileOutput.close();
+        sock.close();
 
-        while (sockChan.read(buffer) > 0) {
-            buffer.flip();
-            fileChan.write(buffer);
-            buffer.clear();
-        }
-        fileChan.close();
         System.out.println("\"" + filename + "\" has been received");
-        sockChan.close();
 
         sock.close();
         System.out.println("Finished Transfer!");
