@@ -30,16 +30,11 @@ class TCPreceive {
         outToServer.writeBytes(filename+ "\n");
 
         File file = new File(filename);
-        if(file.exists()) {
-            if(file.delete()) {
-                System.out.println("Overwriting file with matching name");
-            };
-        }
 
         System.out.println("Getting \"" + filename + "\" from " + sock.getInetAddress().getHostAddress());
         SocketChannel sockChan = sock.getChannel();
 
-        RandomAccessFile accessFile = new RandomAccessFile(filename, "rw");
+        RandomAccessFile accessFile = new RandomAccessFile(file, "rw");
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         FileChannel fileChan = accessFile.getChannel();
 
