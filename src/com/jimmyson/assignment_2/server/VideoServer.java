@@ -99,6 +99,10 @@ public class VideoServer {
             StringBuilder result;
             boolean found;
 
+            System.out.println("SERVER HAS STARTED!");
+            System.out.println("** " + Socket.getLocalAddress() + ":" + Socket.getLocalPort() + "**");
+            PrintHelp();
+
             //DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             try {
