@@ -29,31 +29,41 @@ class TCPsend extends Thread {
      */
     TCPsend(Socket sock, String filename) {
         this.Sock = sock;
+        File file = new File(".\\"+filename);
 
-        if (File.exists()) {
-            try {
-                BufferedOutputStream outToClient = new BufferedOutputStream(sock.getOutputStream());
+        //File[] dirList = new File(".").listFiles();
 
-                File file = new File(filename);
-                byte[] byteArray = new byte[filename.length()];
-
-                BufferedInputStream bufFileInput = new BufferedInputStream(new FileInputStream(file));
-
-                System.out.println("Sending \""+filename+"\" to "+sock.getInetAddress().getHostAddress());
-
+        try {
+            if (file.exists()) {
                 try {
-                    bufFileInput.read(byteArray, 0, byteArray.length);
-                    outToClient.write(byteArray, 0, byteArray.length);
-                    outToClient.flush();
-                    outToClient.close();
-                    sock.close();
+                    BufferedOutputStream outToClient = new BufferedOutputStream(sock.getOutputStream());
 
-                    System.out.println("Finished sending \""+filename + "\"");
-                } catch (IOException e) {
-                    System.out.println("Failed to send \""+filename + "\"");
+                    byte[] byteArray = new byte[(int) file.length()];
+
+                    BufferedInputStream bufFileInput = new BufferedInputStream(new FileInputStream(file));
+
+                    System.out.println("Sending \"" + filename + "\" to " + sock.getInetAddress().getHostAddress());
+
+                    try {
+                        bufFileInput.read(byteArray, 0, byteArray.length);
+                        outToClient.write(byteArray, 0, byteArray.length);
+                        outToClient.flush();
+                        outToClient.close();
+                        sock.close();
+
+                        System.out.println("Finished sending \"" + filename + "\"");
+                    } catch (IOException e) {
+                        System.out.println("Failed to send \"" + filename + "\"");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch(Exception e) {
-                e.printStackTrace();
+            }
+        } catch (NullPointerException e) {
+            try {
+                sock.close();
+            } catch (IOException f){
+                //
             }
         }
     }
