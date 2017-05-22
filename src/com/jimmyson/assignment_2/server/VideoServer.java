@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 
@@ -13,19 +12,19 @@ import java.util.AbstractMap.SimpleEntry;
  * Created by Jimmyson on 17/05/2017.
  * @author James Crawford 9962522
  */
-public class server {
+public class VideoServer {
     /**
      * Array of Clients
      * Array of files with a sub array of clients that have said file
      */
-    private static final int Port = 4000;
-    private static ArrayList<server.Client> Clients = new ArrayList<>();
+    private static int Port;
+    private static ArrayList<VideoServer.Client> Clients = new ArrayList<>();
     private static ArrayList<SimpleEntry<String, ArrayList<InetAddress>>> Files = new ArrayList<>();
     private static boolean Active = true;
     private static byte[] sendData;
 
     /**
-     * A client object
+     * A VideoPeer object
      */
     static class Client {
         private String Name;
@@ -88,12 +87,12 @@ public class server {
         /**
          * Thread command to initiate the UDP listener
          * Lists for the following commands
-         * * WELCOME (Registers a new client)
+         * * WELCOME (Registers a new VideoPeer)
          * * ONLINE (Sends response of active clients)
-         * * ADD (Registers a file to the DB, including client)
+         * * ADD (Registers a file to the DB, including VideoPeer)
          * * DELETE (Removes a cilent from a file association, and file when no more clients have file)
          * * WHOHAS (Sends response of active clients with file
-         * * BYE (Deregisters a client)
+         * * BYE (Deregisters a VideoPeer)
          */
         public void run() {
             int index;
@@ -114,19 +113,19 @@ public class server {
                     switch(command[0].trim().toUpperCase()) {
                         case "WELCOME":
                             found = false;
-                            for (server.Client c : Clients) {
+                            for (VideoServer.Client c : Clients) {
                                 if (incoming.getAddress().getHostName().equals(c.GetName())) {
                                     found = true;
                                 }
                             }
                             if(!found)
-                                Clients.add(new server.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
+                                Clients.add(new VideoServer.Client(incoming.getAddress().getHostName(), incoming.getAddress().getAddress(), 4001));
                             //AllSend(incoming.getAddress().getHostName() + " HAS CONNECTED");
                             System.out.println(incoming.getAddress().getHostName()+" AS CONNECTED");
                             break;
                         case "ONLINE":
                             result = new StringBuilder();
-                            for (server.Client c : Clients) {
+                            for (VideoServer.Client c : Clients) {
                                 result.append(c.GetName());
                                 result.append(" => ");
                                 result.append(IPtoString(c.GetIP()));
@@ -187,7 +186,7 @@ public class server {
                             Send(result.toString(), incoming.getAddress());
                             break;
                         case "BYE":
-                            for (server.Client c : Clients) {
+                            for (VideoServer.Client c : Clients) {
                                 if (incoming.getAddress().getHostName().equals(c.GetName())) {
                                     //AllSend(c.GetName() + " AS DISCONNECTED");
                                     System.out.println(c.GetName() + " AS DISCONNECTED");
@@ -235,34 +234,52 @@ public class server {
         for (String param : argv) {
             switch (param) {
                 case "-p":
-                int port = Integer.parseInt(argv[index+1]);
+                    try {
+                        Port = Integer.parseInt(argv[index + 1]);
+                    } catch (Exception e) {
+                        Port = 4000;
+                    }
                 break;
             }
             index++;
         }
 
+        if (Port < 1024) {
+            Port = 4000;
+        }
+
         UDPlistener listener = new UDPlistener(Port);
 
-        StringBuilder result;
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
         while(Active) {
             String[] command = CommandSplit(input.readLine());
             switch (command[0].trim().toUpperCase()) {
                 case "ONLINE":
-                    result = new StringBuilder();
+                    index = 0;
+                    System.out.println("---------------");
+                    System.out.println("Users Connected");
                     for (Client c : Clients) {
-                        result.append(c.GetName());
-                        result.append(" => ");
-                        result.append(IPtoString(c.GetIP()));
-                        result.append(":");
-                        result.append(c.GetPort());
-                        result.append("\n");
+                        System.out.println("\t" + c.GetName() + " => " + IPtoString(c.GetIP()) + ":" + c.GetPort());
+                        index++;
                     }
-                    if(!result.toString().equals(""))
-                        System.out.println(result.toString());
-                    else
+                    if (index == 0)
                         System.out.println("No users connected");
+                    System.out.println("---------------");
+                    break;
+                case "FILES":
+                    System.out.println("---------------");
+                    System.out.println("Files logged in System");
+                    for (SimpleEntry<String, ArrayList<InetAddress>> file : Files) {
+                        System.out.println(file.getKey() + ":");
+                        for (InetAddress IP : file.getValue()) {
+                            System.out.println("\t" + IP.getHostAddress());
+                        }
+                    }
+                    System.out.println("---------------");
+                    break;
+                case "HELP":
+                    PrintHelp();
                     break;
                 case "QUIT":
                 case "STOP":
@@ -277,6 +294,20 @@ public class server {
                     break;
             }
         }
+    }
+
+    /**
+     * Print the Commands for the Server
+     */
+    private static void PrintHelp() {
+        System.out.println("---------------");
+        System.out.println("Accepted Commands");
+        System.out.println();
+        System.out.println("ONLINE - Print Connected Users");
+        System.out.println("FILES - Print Listed Files");
+        System.out.println("HELP - Print this output");
+        System.out.println("QUIT/STOP - Terminate Server");
+        System.out.println("---------------");
     }
 
     /**
@@ -325,7 +356,7 @@ public class server {
     /**
      * Sends response to the Client
      *
-     * @param message Command to the client
+     * @param message Command to the VideoPeer
      * @param dest Client's IP
      * @throws Exception When Socket is broken
      */

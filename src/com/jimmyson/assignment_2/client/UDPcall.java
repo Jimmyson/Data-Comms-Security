@@ -14,7 +14,7 @@ class UDPcall extends Thread {
     private InetAddress Server;
 
     /**
-     * UDP service to send commands to the directory server.
+     * UDP service to send commands to the directory VideoServer.
      *
      * @param port Server's port number
      * @param server Server's IP address
@@ -28,7 +28,7 @@ class UDPcall extends Thread {
     }
 
     /**
-     * Listens for incoming UDP data from the server and prints to the application.
+     * Listens for incoming UDP data from the VideoServer and prints to the application.
      */
     public void run() {
         try {
@@ -60,7 +60,7 @@ class UDPcall extends Thread {
     /**
      * Sends requets to the Server
      *
-     * @param message Command to the server
+     * @param message Command to the VideoServer
      * @throws Exception When Socket is broken
      */
     void Send(String message) throws Exception {
@@ -79,6 +79,7 @@ class UDPcall extends Thread {
     void Terminate() {
         Active = false;
         Socket.close();
+        this.interrupt();
     }
 
     /**

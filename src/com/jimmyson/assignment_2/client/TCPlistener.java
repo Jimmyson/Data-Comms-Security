@@ -31,7 +31,7 @@ class TCPlistener extends Thread {
 
     /**
      * Thread process to active the Listener
-     * Waits for a connection from a client, and begins the request for their file.
+     * Waits for a connection from a VideoPeer, and begins the request for their file.
      * Threads are send to an array to allow multiple process to be tracked.
      */
     public void run() {
@@ -58,6 +58,7 @@ class TCPlistener extends Thread {
     void Terminate() throws Exception {
         Server.close();
         Accept = false;
+        this.interrupt();
     }
 
     /**

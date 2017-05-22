@@ -12,15 +12,15 @@ import java.net.Socket;
  * @author James Crawford 9962522
  */
 
-public class client {
+public class VideoPeer {
     private static final int UDPport = 4000;
     private static final int TCPport = 4001;
     private static TCPlistener Listen;
     private static UDPcall Call;
 
     /**
-     * Initiates the client process
-     * Asks for Hostname of the server if not specified by the flag.
+     * Initiates the VideoPeer process
+     * Asks for Hostname of the VideoServer if not specified by the flag.
      *
      * @param argv Program Arguments
      * @throws Exception For Inputs and Ports

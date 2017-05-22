@@ -9,12 +9,12 @@ import java.net.Socket;
  */
 class TCPreceive {
     /**
-     * Makes the requests for a specific file from a server.
-     * Delete any file of the same name, and captures incoming data from the server to be written to the new file.
+     * Makes the requests for a specific file from a VideoServer.
+     * Delete any file of the same name, and captures incoming data from the VideoServer to be written to the new file.
      *
      * There is currently an issue with file transfer greater than 4MB.
      *
-     * @param sock Connection to the server
+     * @param sock Connection to the VideoServer
      * @param filename Filename of the Requested file
      * //@url http://www.coderpanda.com/java-socket-programming-transferring-large-sized-files-through-socket/
      * @throws Exception When socket connection is broken, or file is not accessible
